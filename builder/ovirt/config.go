@@ -25,6 +25,7 @@ type Config struct {
 	IPAddress string `mapstructure:"address"`
 	Netmask   string `mapstructure:"netmask"`
 	Gateway   string `mapstructure:"gateway"`
+	NicName   string `mapstructure:"nic_name"`
 
 	DiskName        string `mapstructure:"disk_name"`
 	DiskDescription string `mapstructure:"disk_description"`
@@ -58,6 +59,10 @@ func NewConfig(raws ...interface{}) (*Config, []string, error) {
 	if c.Netmask == "" {
 		c.Netmask = "255.255.255.0"
 		log.Printf("Set default netmask to %s", c.Netmask)
+	}
+	if c.NicName == "" {
+		c.NicName = "enp1s0"
+		log.Printf("Set default nic name to %s", c.NicName)
 	}
 
 	errs = packer.MultiErrorAppend(errs, c.Comm.Prepare(&c.ctx)...)
