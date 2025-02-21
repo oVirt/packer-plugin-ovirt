@@ -1,4 +1,4 @@
-module go.combell-sre.net/packer-builder-ovirt
+module go.combell-sre.net/packer/builder-ovirt
 
 go 1.24.0
 
@@ -132,6 +132,9 @@ require (
 )
 
 replace (
+	// https://github.com/ugorji/go/issues/407
 	github.com/ugorji/go => github.com/ugorji/go v1.2.12
+
+	// https://github.com/hashicorp/packer-plugin-sdk/issues/187
 	github.com/zclconf/go-cty => github.com/nywilken/go-cty v1.13.3
 )
