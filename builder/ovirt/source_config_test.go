@@ -74,14 +74,14 @@ func TestSourceConfig_Prepare_template(t *testing.T) {
 }
 
 func testSourceConfig() SourceConfig {
-	return SourceConfig {
+	return SourceConfig{
 		SourceTemplateName: "foo",
 	}
 }
 
 func testTemplateSourceConfig() SourceConfig {
-	return SourceConfig {
-		SourceType: "template",
+	return SourceConfig{
+		SourceType:         "template",
 		SourceTemplateName: "foo",
 	}
 }

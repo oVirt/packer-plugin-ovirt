@@ -6,11 +6,11 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/multistep/commonsteps"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
-	"github.com/hashicorp/hcl/v2/hcldec"
 	ovirtsdk4 "github.com/ovirt/go-ovirt"
 )
 

@@ -99,7 +99,7 @@ func (s *stepKeyPair) Run(ctx context.Context, state multistep.StateBag) multist
 
 		// Chmod it so that it's SSH ready
 		if runtime.GOOS != "windows" {
-			if err := f.Chmod(0600); err != nil {
+			if err := f.Chmod(0o600); err != nil {
 				err = fmt.Errorf("Error setting permissions of debug key: %s", err)
 				ui.Error(err.Error())
 				state.Put("error", err)

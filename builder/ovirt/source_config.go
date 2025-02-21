@@ -40,12 +40,12 @@ func (c *SourceConfig) Prepare(ctx *interpolate.Context) []error {
 		errs = append(errs, fmt.Errorf("Invalid source_type: %s", c.SourceType))
 	}
 
-	if (c.SourceType == "template") {
+	if c.SourceType == "template" {
 		if (c.SourceTemplateName != "") && (c.SourceTemplateVersion < 1) {
 			c.SourceTemplateVersion = 1
 			log.Printf("Using default source_template_version: %d", c.SourceTemplateVersion)
 		}
-		if (c.SourceTemplateID != "") {
+		if c.SourceTemplateID != "" {
 			if _, err := uuid.Parse(c.SourceTemplateID); err != nil {
 				errs = append(errs, fmt.Errorf("Invalid source_template_id: %s", c.SourceTemplateID))
 			}

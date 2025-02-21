@@ -6,11 +6,11 @@ import (
 	"log"
 
 	"github.com/hashicorp/packer-plugin-sdk/common"
-	"github.com/hashicorp/packer-plugin-sdk/uuid"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
-	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
+	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
+	"github.com/hashicorp/packer-plugin-sdk/uuid"
 )
 
 type Config struct {
@@ -21,10 +21,10 @@ type Config struct {
 
 	Comm communicator.Config `mapstructure:",squash"`
 
-	VMName      string       `mapstructure:"vm_name"`
-	IPAddress   string       `mapstructure:"address"`
-	Netmask     string       `mapstructure:"netmask"`
-	Gateway     string       `mapstructure:"gateway"`
+	VMName    string `mapstructure:"vm_name"`
+	IPAddress string `mapstructure:"address"`
+	Netmask   string `mapstructure:"netmask"`
+	Gateway   string `mapstructure:"gateway"`
 
 	DiskName        string `mapstructure:"disk_name"`
 	DiskDescription string `mapstructure:"disk_description"`

@@ -48,7 +48,7 @@ func TestAccessConfig_Prepare(t *testing.T) {
 }
 
 func testAccessConfig() AccessConfig {
-	return AccessConfig {
+	return AccessConfig{
 		OvirtURLRaw: "https://ovirt.example.com/ovirt/api",
 		Username:    "admin@internal",
 		Password:    "password",

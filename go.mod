@@ -47,6 +47,7 @@ require (
 	github.com/gofrs/flock v0.12.1 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
+	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
@@ -129,6 +130,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
 	google.golang.org/grpc v1.70.0 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
+	mvdan.cc/gofumpt v0.7.0 // indirect
 )
 
 replace (
@@ -137,4 +139,9 @@ replace (
 
 	// https://github.com/hashicorp/packer-plugin-sdk/issues/187
 	github.com/zclconf/go-cty => github.com/nywilken/go-cty v1.13.3
+)
+
+tool (
+	golang.org/x/tools/cmd/goimports
+	mvdan.cc/gofumpt
 )

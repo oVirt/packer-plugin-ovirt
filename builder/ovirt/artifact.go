@@ -37,6 +37,6 @@ func (a *Artifact) State(name string) interface{} {
 // Destroy deletes the custom image associated with the artifact.
 func (a *Artifact) Destroy() error {
 	log.Printf("Destroying disk: %s", a.diskID)
-	//TODO
+	// TODO
 	return nil
 }

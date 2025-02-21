@@ -32,7 +32,8 @@ type StateChangeConf struct {
 // VMStateRefreshFunc returns a StateRefreshFunc that is used to watch
 // a oVirt virtual machine.
 func VMStateRefreshFunc(
-	conn *ovirtsdk4.Connection, vmID string) StateRefreshFunc {
+	conn *ovirtsdk4.Connection, vmID string,
+) StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := conn.SystemService().
 			VmsService().
@@ -55,7 +56,8 @@ func VMStateRefreshFunc(
 // DiskStateRefreshFunc returns a StateRefreshFunc that is used to watch a
 // oVirt disk.
 func DiskStateRefreshFunc(
-	conn *ovirtsdk4.Connection, diskID string) StateRefreshFunc {
+	conn *ovirtsdk4.Connection, diskID string,
+) StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := conn.SystemService().
 			DisksService().
@@ -78,7 +80,8 @@ func DiskStateRefreshFunc(
 // DiskAttachmentStateRefreshFunc returns a StateRefreshFunc that is used to
 // watch a oVirt disk attachment.
 func DiskAttachmentStateRefreshFunc(
-	conn *ovirtsdk4.Connection, vmID string, diskID string) StateRefreshFunc {
+	conn *ovirtsdk4.Connection, vmID string, diskID string,
+) StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := conn.SystemService().
 			VmsService().
