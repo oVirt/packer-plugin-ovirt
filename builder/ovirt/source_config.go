@@ -7,7 +7,7 @@ import (
 	"sort"
 
 	"github.com/google/uuid"
-	"github.com/hashicorp/packer/template/interpolate"
+	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
 )
 
 // SourceConfig contains the various source properties for an oVirt image

@@ -6,10 +6,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/packer/common"
-	"github.com/hashicorp/packer/helper/communicator"
-	"github.com/hashicorp/packer/helper/multistep"
-	"github.com/hashicorp/packer/packer"
+	"github.com/hashicorp/packer-plugin-sdk/communicator"
+	"github.com/hashicorp/packer-plugin-sdk/multistep"
+	"github.com/hashicorp/packer-plugin-sdk/multistep/commonsteps"
+	"github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	ovirtsdk4 "github.com/ovirt/go-ovirt"
 )
@@ -91,8 +91,8 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		SSHConfig: b.config.Comm.SSHConfigFunc(),
 	},
 	)
-	steps = append(steps, &common.StepProvision{})
-	steps = append(steps, &common.StepCleanupTempKeys{
+	steps = append(steps, &commonsteps.StepProvision{})
+	steps = append(steps, &commonsteps.StepCleanupTempKeys{
 		Comm: &b.config.Comm,
 	},
 	)
@@ -108,7 +108,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	}()
 
 	// Configure the runner and run the steps
-	b.runner = common.NewRunner(steps, b.config.PackerConfig, ui)
+	b.runner = commonsteps.NewRunner(steps, b.config.PackerConfig, ui)
 	b.runner.Run(ctx, state)
 
 	// If there was an error, return that

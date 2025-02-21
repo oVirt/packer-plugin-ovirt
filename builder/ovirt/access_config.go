@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/hashicorp/packer/template/interpolate"
+	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
 )
 
 // AccessConfig contains the oVirt API access and authentication configuration

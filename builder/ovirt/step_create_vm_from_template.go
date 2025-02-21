@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/packer/helper/multistep"
-	"github.com/hashicorp/packer/packer"
-	"github.com/hashicorp/packer/template/interpolate"
+	"github.com/hashicorp/packer-plugin-sdk/multistep"
+	"github.com/hashicorp/packer-plugin-sdk/packer"
+	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
 	ovirtsdk4 "github.com/ovirt/go-ovirt"
 )
 

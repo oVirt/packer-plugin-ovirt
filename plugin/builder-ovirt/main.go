@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/cwilloughby-bw/packer-builder-ovirt/builder/ovirt"
-	"github.com/hashicorp/packer/packer/plugin"
+	"go.combell-sre.net/packer-builder-ovirt/builder/ovirt"
+	"github.com/hashicorp/packer-plugin-sdk/plugin"
 )
 
 func main() {

@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/hashicorp/packer/helper/multistep"
+	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	ovirtsdk4 "github.com/ovirt/go-ovirt"
 )
 
