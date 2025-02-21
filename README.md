@@ -1,9 +1,12 @@
-[![Build Status](https://travis-ci.org/ganto/packer-builder-ovirt.svg?branch=master)](https://travis-ci.org/ganto/packer-builder-ovirt)
-
 # oVirt packer.io builder
 
 This builder plugin extends [packer.io](https://packer.io) to support building
 images for [oVirt](https://www.ovirt.org).
+
+Based on:
+
+* [cwilloughby-bw/packer-builder-ovirt](https://github.com/cwilloughby-bw/packer-builder-ovirt)
+* [ganto/packer-builder-ovirt](https://github.com/ganto/packer-builder-ovirt)
 
 ## Development
 
@@ -16,22 +19,7 @@ package manager to install Go on your system.
 ### Compile the plugin
 
 ```shell
-cd $GOPATH
-mkdir -p src/github.com/ganto
-cd src/github.com/ganto
-git clone https://github.com/ganto/packer-builder-ovirt.git
-cd packer-builder-ovirt
-PACKER_DEV=1 make bin
+go build
 ```
 
-If the build was successful, you should now have the `packer-builder-ovirt`
-binary in your `$GOPATH/bin` directory.
-
-In order to do a cross-compile, run the following build command:
-
-```shell
-XC_OS="linux" XC_ARCH="386 amd64" make bin
-```
-
-This builds 32 and 64 bit binaries for Linux. Native binaries will be installed
-in `$GOPATH/bin` as above, and cross-compiled ones in the `pkg/` directory.
+If the build was successful, you should now have the `builder-ovirt`.
