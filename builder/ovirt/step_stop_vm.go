@@ -20,17 +20,17 @@ func (s *stepStopVM) Run(ctx context.Context, state multistep.StateBag) multiste
 	_, err := conn.SystemService().
 		VmsService().
 		VmService(vmID).
-		Stop().
+		Shutdown().
 		Send()
 	if err != nil {
-		err = fmt.Errorf("Error stopping VM: %s", err)
+		err = fmt.Errorf("Error shutting down VM: %s", err)
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}
 
 	ui.Message(fmt.Sprintf("Waiting for VM to stop: %s ...", vmID))
 	stateChange := StateChangeConf{
-		Pending:   []string{string(ovirtsdk4.VMSTATUS_UP)},
+		Pending:   []string{string(ovirtsdk4.VMSTATUS_UP), string(ovirtsdk4.VMSTATUS_POWERING_DOWN)},
 		Target:    []string{string(ovirtsdk4.VMSTATUS_DOWN)},
 		Refresh:   VMStateRefreshFunc(conn, vmID),
 		StepState: state,
