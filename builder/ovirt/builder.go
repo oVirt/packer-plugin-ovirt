@@ -98,7 +98,12 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	)
 	steps = append(steps, &stepStopVM{})
 	steps = append(steps, &stepUpdateDisk{})
-	steps = append(steps, &stepDetachDisk{})
+	if len(b.config.TemplateName) != 0 {
+		steps = append(steps, &stepCreateTemplate{})
+	}
+	if len(b.config.DiskName) != 0 {
+		steps = append(steps, &stepDetachDisk{})
+	}
 
 	// To use `Must` methods, you should recover it if panics
 	defer func() {

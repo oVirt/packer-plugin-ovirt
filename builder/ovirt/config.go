@@ -30,6 +30,9 @@ type Config struct {
 	DiskName        string `mapstructure:"disk_name"`
 	DiskDescription string `mapstructure:"disk_description"`
 
+	TemplateName        string `mapstructure:"template_name"`
+	TemplateDescription string `mapstructure:"template_description"`
+
 	ctx interpolate.Context
 }
 

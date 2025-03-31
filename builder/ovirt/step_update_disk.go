@@ -59,16 +59,22 @@ func (s *stepUpdateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 		return multistep.ActionHalt
 	}
 
-	diskBuilder := ovirtsdk4.NewDiskBuilder().
-		Name(config.DiskName).
-		Description(config.DiskDescription)
+	diskBuilder := ovirtsdk4.NewDiskBuilder()
+	diskBuilder.Description(config.DiskDescription)
 
-	log.Printf(fmt.Sprintf("Disk name: %s", config.DiskName))
-	log.Printf(fmt.Sprintf("Disk description: %s", config.DiskDescription))
+	if len(config.DiskName) != 0 {
+		diskBuilder.Name(config.DiskName)
+	} else if len(config.TemplateName) != 0 {
+		diskBuilder.Name(config.TemplateName)
+	}
+	disk = diskBuilder.MustBuild()
+
+	log.Printf("Disk name: %s", disk.MustName())
+	log.Printf("Disk description: %s", config.DiskDescription)
 
 	_, err = diskAttachmentService.Update().DiskAttachment(
 		ovirtsdk4.NewDiskAttachmentBuilder().
-			Disk(diskBuilder.MustBuild()).
+			Disk(disk).
 			MustBuild()).
 		Send()
 	if err != nil {
