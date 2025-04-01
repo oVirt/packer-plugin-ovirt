@@ -43,7 +43,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	var err error
 
 	conn, err := ovirtsdk4.NewConnectionBuilder().
-		URL(b.config.OvirtURL.String()).
+		URL(b.config.ovirtURL.String()).
 		Username(b.config.Username).
 		Password(b.config.Password).
 		Insecure(b.config.SkipCertValidation).
@@ -56,7 +56,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 
 	defer conn.Close()
 
-	log.Printf("Successfully connected to %s\n", b.config.OvirtURL.String())
+	log.Printf("Successfully connected to %s\n", b.config.ovirtURL.String())
 
 	// Set up the state
 	state := new(multistep.BasicStateBag)
