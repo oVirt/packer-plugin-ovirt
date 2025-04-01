@@ -3,6 +3,7 @@ package ovirt
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
@@ -21,6 +22,31 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 		return multistep.ActionContinue
 	}
 	vmID := temp.(string)
+
+	// Delete template with the same name if it already exists.
+	// We've already provisioned the new VM so we're fairly sure creating the new template will work.
+	templatesService := conn.SystemService().TemplatesService()
+	log.Printf("Searching for existing template '%s'", config.TemplateName)
+	tpsResp, err := templatesService.List().
+		Search(fmt.Sprintf("name=%s", config.TemplateName)).
+		Send()
+	if err != nil {
+		err = fmt.Errorf("error searching templates: %s", err)
+		ui.Error(err.Error())
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
+	tpSlice, _ := tpsResp.Templates()
+
+	for _, tp := range tpSlice.Slice() {
+		_, err := templatesService.TemplateService(tp.MustId()).Remove().Send()
+		if err != nil {
+			err = fmt.Errorf("could not remove template '%s'", config.TemplateName)
+			ui.Error(err.Error())
+			state.Put("error", err)
+			return multistep.ActionHalt
+		}
+	}
 
 	// We need to build a new VM as the object contained in the template should only contain the ID.
 	vm := ovirtsdk4.NewVmBuilder().Id(vmID).MustBuild()
