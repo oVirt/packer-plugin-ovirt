@@ -25,6 +25,7 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 
 	// Delete template with the same name if it already exists.
 	// We've already provisioned the new VM so we're fairly sure creating the new template will work.
+	ui.Message(fmt.Sprintf("Checking for existing template %s ...", config.TemplateName))
 	templatesService := conn.SystemService().TemplatesService()
 	log.Printf("Searching for existing template '%s'", config.TemplateName)
 	tpsResp, err := templatesService.List().

@@ -25,8 +25,12 @@ type FlatConfig struct {
 	Cluster                   *string           `mapstructure:"cluster" cty:"cluster" hcl:"cluster"`
 	SourceType                *string           `mapstructure:"source_type" cty:"source_type" hcl:"source_type"`
 	SourceTemplateName        *string           `mapstructure:"source_template_name" cty:"source_template_name" hcl:"source_template_name"`
-	SourceTemplateVersion     *int              `mapstructure:"source_template_version" cty:"source_template_version" hcl:"source_template_version"`
+	SourceTemplateVersion     *int64            `mapstructure:"source_template_version" cty:"source_template_version" hcl:"source_template_version"`
 	SourceTemplateID          *string           `mapstructure:"source_template_id" cty:"source_template_id" hcl:"source_template_id"`
+	SourceISO                 *string           `mapstructure:"source_iso" cty:"source_iso" hcl:"source_iso"`
+	CDName                    *string           `mapstructure:"cd_name" cty:"cd_name" hcl:"cd_name"`
+	CDFiles                   []string          `mapstructure:"cd_files" cty:"cd_files" hcl:"cd_files"`
+	CDContent                 map[string]string `mapstructure:"cd_content" cty:"cd_content" hcl:"cd_content"`
 	Type                      *string           `mapstructure:"communicator" cty:"communicator" hcl:"communicator"`
 	PauseBeforeConnect        *string           `mapstructure:"pause_before_connecting" cty:"pause_before_connecting" hcl:"pause_before_connecting"`
 	SSHHost                   *string           `mapstructure:"ssh_host" cty:"ssh_host" hcl:"ssh_host"`
@@ -83,8 +87,11 @@ type FlatConfig struct {
 	NicName                   *string           `mapstructure:"nic_name" cty:"nic_name" hcl:"nic_name"`
 	DiskName                  *string           `mapstructure:"disk_name" cty:"disk_name" hcl:"disk_name"`
 	DiskDescription           *string           `mapstructure:"disk_description" cty:"disk_description" hcl:"disk_description"`
+	DiskSize                  *uint64           `mapstructure:"disk_size" cty:"disk_size" hcl:"disk_size"`
 	TemplateName              *string           `mapstructure:"template_name" cty:"template_name" hcl:"template_name"`
 	TemplateDescription       *string           `mapstructure:"template_description" cty:"template_description" hcl:"template_description"`
+	BootCommand               *string           `mapstructure:"boot_command" cty:"boot_command" hcl:"boot_command"`
+	StorageDomain             *string           `mapstructure:"storage_domain" cty:"storage_domain" hcl:"storage_domain"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -116,6 +123,10 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"source_template_name":         &hcldec.AttrSpec{Name: "source_template_name", Type: cty.String, Required: false},
 		"source_template_version":      &hcldec.AttrSpec{Name: "source_template_version", Type: cty.Number, Required: false},
 		"source_template_id":           &hcldec.AttrSpec{Name: "source_template_id", Type: cty.String, Required: false},
+		"source_iso":                   &hcldec.AttrSpec{Name: "source_iso", Type: cty.String, Required: false},
+		"cd_name":                      &hcldec.AttrSpec{Name: "cd_name", Type: cty.String, Required: false},
+		"cd_files":                     &hcldec.AttrSpec{Name: "cd_files", Type: cty.List(cty.String), Required: false},
+		"cd_content":                   &hcldec.AttrSpec{Name: "cd_content", Type: cty.Map(cty.String), Required: false},
 		"communicator":                 &hcldec.AttrSpec{Name: "communicator", Type: cty.String, Required: false},
 		"pause_before_connecting":      &hcldec.AttrSpec{Name: "pause_before_connecting", Type: cty.String, Required: false},
 		"ssh_host":                     &hcldec.AttrSpec{Name: "ssh_host", Type: cty.String, Required: false},
@@ -172,8 +183,11 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"nic_name":                     &hcldec.AttrSpec{Name: "nic_name", Type: cty.String, Required: false},
 		"disk_name":                    &hcldec.AttrSpec{Name: "disk_name", Type: cty.String, Required: false},
 		"disk_description":             &hcldec.AttrSpec{Name: "disk_description", Type: cty.String, Required: false},
+		"disk_size":                    &hcldec.AttrSpec{Name: "disk_size", Type: cty.Number, Required: false},
 		"template_name":                &hcldec.AttrSpec{Name: "template_name", Type: cty.String, Required: false},
 		"template_description":         &hcldec.AttrSpec{Name: "template_description", Type: cty.String, Required: false},
+		"boot_command":                 &hcldec.AttrSpec{Name: "boot_command", Type: cty.String, Required: false},
+		"storage_domain":               &hcldec.AttrSpec{Name: "storage_domain", Type: cty.String, Required: false},
 	}
 	return s
 }

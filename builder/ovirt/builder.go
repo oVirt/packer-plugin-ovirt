@@ -65,6 +65,30 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	state.Put("hook", hook)
 	state.Put("ui", ui)
 
+	cResp, err := conn.SystemService().
+		ClustersService().
+		List().
+		Send()
+	if err != nil {
+		return nil, fmt.Errorf("Error getting cluster list: %w", err)
+	}
+	var clusterID string
+	if clusters, ok := cResp.Clusters(); ok {
+		for _, cluster := range clusters.Slice() {
+			if clusterName, ok := cluster.Name(); ok {
+				if clusterName == b.config.Cluster {
+					clusterID = cluster.MustId()
+					log.Printf("Using cluster id: %s", clusterID)
+					break
+				}
+			}
+		}
+	}
+	if clusterID == "" {
+		return nil, fmt.Errorf("Could not find cluster '%s'", b.config.Cluster)
+	}
+	state.Put("cluster_id", clusterID)
+
 	// Build the steps
 	steps := []multistep.Step{}
 	steps = append(steps, &stepKeyPair{
@@ -73,12 +97,10 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		DebugKeyPath: fmt.Sprintf("ovirt_%s.pem", b.config.PackerBuildName),
 	},
 	)
-	if b.config.SourceType == "template" {
-		steps = append(steps, &stepCreateVMFromTemplate{
-			Ctx:   b.config.ctx,
-			Debug: b.config.PackerDebug,
-		},
-		)
+	steps = append(steps, &stepCreateVM{})
+	if b.config.SourceType == ISOSource {
+		// Assuming that builds starting from a template already have a boot disk.
+		steps = append(steps, &stepAddDisk{})
 	}
 	steps = append(steps, &stepSetupInitialRun{
 		Debug: b.config.PackerDebug,

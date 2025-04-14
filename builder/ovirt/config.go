@@ -29,9 +29,13 @@ type Config struct {
 
 	DiskName        string `mapstructure:"disk_name"`
 	DiskDescription string `mapstructure:"disk_description"`
+	DiskSize        uint64 `mapstructure:"disk_size"`
 
 	TemplateName        string `mapstructure:"template_name"`
 	TemplateDescription string `mapstructure:"template_description"`
+
+	BootCommand   string `mapstructure:"boot_command"`
+	StorageDomain string `mapstructure:"storage_domain"`
 
 	ctx interpolate.Context
 }
