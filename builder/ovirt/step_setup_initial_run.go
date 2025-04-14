@@ -59,37 +59,35 @@ func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag)
 
 	log.Println(config.SourceType)
 
-	switch config.SourceType {
-	case TemplateSource:
-		if s.Comm.SSHUsername != "" {
-			log.Printf("Set SSH user name: %s", s.Comm.SSHUsername)
-			initBuilder.UserName(s.Comm.SSHUsername)
-		}
-		if string(s.Comm.SSHPublicKey) != "" {
-			publicKey := s.Comm.SSHPublicKey
-			log.Printf("Set authorized SSH key: %s", string(publicKey))
-			initBuilder.AuthorizedSshKeys(string(publicKey))
-		}
+	if s.Comm.SSHUsername != "" {
+		log.Printf("Set SSH user name: %s", s.Comm.SSHUsername)
+		initBuilder.UserName(s.Comm.SSHUsername)
+	}
+	if string(s.Comm.SSHPublicKey) != "" {
+		publicKey := s.Comm.SSHPublicKey
+		log.Printf("Set authorized SSH key: %s", string(publicKey))
+		initBuilder.AuthorizedSshKeys(string(publicKey))
+	}
 
-		if len(config.IPAddress) > 0 {
-			log.Printf("Set static IP address: %s/%s", config.IPAddress, config.Netmask)
-			log.Printf("Set gateway: %s", config.Gateway)
+	if len(config.IPAddress) > 0 {
+		log.Printf("Set static IP address: %s/%s", config.IPAddress, config.Netmask)
+		log.Printf("Set gateway: %s", config.Gateway)
 
-			ipBuilder := ovirtsdk4.NewIpBuilder()
-			ipBuilder.Address(config.IPAddress)
-			ipBuilder.Netmask(config.Netmask)
-			ipBuilder.Gateway(config.Gateway)
+		ipBuilder := ovirtsdk4.NewIpBuilder()
+		ipBuilder.Address(config.IPAddress)
+		ipBuilder.Netmask(config.Netmask)
+		ipBuilder.Gateway(config.Gateway)
 
-			nicBuilder := ovirtsdk4.NewNicConfigurationBuilder()
-			nicBuilder.Name(config.NicName)
-			nicBuilder.BootProtocol(ovirtsdk4.BootProtocol("static"))
-			nicBuilder.OnBoot(true)
-			nicBuilder.IpBuilder(ipBuilder)
+		nicBuilder := ovirtsdk4.NewNicConfigurationBuilder()
+		nicBuilder.Name(config.NicName)
+		nicBuilder.BootProtocol(ovirtsdk4.BootProtocol("static"))
+		nicBuilder.OnBoot(true)
+		nicBuilder.IpBuilder(ipBuilder)
 
-			initBuilder.NicConfigurationsOfAny(nicBuilder.MustBuild())
-		}
+		initBuilder.NicConfigurationsOfAny(nicBuilder.MustBuild())
+	}
 
-	case ISOSource:
+	if config.SourceType == ISOSource {
 		isoID, err := s.findImage(conn, config.SourceISO)
 		if err != nil {
 			ui.Error(err.Error())
@@ -98,10 +96,16 @@ func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag)
 		}
 
 		// Attach the boot CDROM to the VM.
-		// We don't have to change the boot device as it automatically falls back to
-		// the CDROM if the disk is not bootable. We've added an empty disk in the previous step.
 		cdromBuilder := ovirtsdk4.NewCdromBuilder()
 		cdromBuilder.File(ovirtsdk4.NewFileBuilder().Id(isoID).MustBuild())
+
+		bootBuilder := ovirtsdk4.NewBootBuilder()
+		bootBuilder.DevicesOfAny(ovirtsdk4.BOOTDEVICE_CDROM)
+
+		osBuilder := ovirtsdk4.NewOperatingSystemBuilder()
+		osBuilder.BootBuilder(bootBuilder)
+
+		vmBuilder.OsBuilder(osBuilder)
 
 		// TODO: The `current` parameter mounts the cdrom for the next boot. Does this work with installs that require a reboot?
 		cdromService := vmService.CdromsService()
@@ -111,6 +115,11 @@ func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag)
 			state.Put("error", err)
 			return multistep.ActionHalt
 		}
+
+		displayBuilder := ovirtsdk4.NewDisplayBuilder()
+		displayBuilder.Type(ovirtsdk4.DISPLAYTYPE_VNC)
+		displayBuilder.Monitors(1)
+		vmBuilder.DisplayBuilder(displayBuilder)
 
 		if len(config.CDFiles) > 0 || len(config.CDContent) > 0 {
 			cdBuilder := ovirtsdk4.NewPayloadBuilder()
@@ -204,20 +213,28 @@ func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag)
 		return multistep.ActionHalt
 	}
 
-	ui.Message(fmt.Sprintf("Waiting for VM to become ready (status up) ..."))
+	ui.Message(fmt.Sprintf("Waiting for VM to become ready ..."))
 	stateChange := StateChangeConf{
-		Pending:   []string{"wait_for_launch", "powering_up"},
+		Pending:   []string{string(ovirtsdk4.VMSTATUS_WAIT_FOR_LAUNCH), string(ovirtsdk4.VMSTATUS_POWERING_UP)},
 		Target:    []string{string(ovirtsdk4.VMSTATUS_UP)},
 		Refresh:   VMStateRefreshFunc(conn, vmID),
 		StepState: state,
 	}
+
+	// oVirt does not know when the VM is ready when there's no guest agent, it defaults to 60 seconds.
+	// This is too long for the Debian Installer, it goes into Speech Synthesis mode automatically.
+	// We fix this by continuing to the next Packer step immediately after the VM goes to powering_up state.
+	if config.BootCommand.VNCConfig.BootWait != 0 {
+		stateChange.Pending = []string{string(ovirtsdk4.VMSTATUS_WAIT_FOR_LAUNCH)}
+		stateChange.Target = []string{string(ovirtsdk4.VMSTATUS_POWERING_UP)}
+	}
+
 	if _, err := WaitForState(&stateChange); err != nil {
 		err := fmt.Errorf("Failed waiting for VM (%s) to become up: %s", vmID, err)
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt
 	}
-
 	ui.Message("VM successfully started!")
 
 	return multistep.ActionContinue

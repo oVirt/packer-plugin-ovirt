@@ -43,11 +43,11 @@ func (c *SourceConfig) Prepare(ctx *interpolate.Context) []error {
 	}
 
 	switch c.SourceType {
-		case "":
+	case "":
 		log.Printf("Using default source_type: %s", c.SourceType)
 		c.SourceType = "template"
 		fallthrough
-		case TemplateSource:
+	case TemplateSource:
 		log.Println("Using template source type")
 		if (c.SourceTemplateName != "") && (c.SourceTemplateVersion < 1) {
 			c.SourceTemplateVersion = 1
@@ -65,15 +65,15 @@ func (c *SourceConfig) Prepare(ctx *interpolate.Context) []error {
 			errs = append(errs, errors.New("source_template_name or source_template_id must be specified"))
 		}
 
-		case ISOSource:
-  log.Println("Using ISO source type")
+	case ISOSource:
+		log.Println("Using ISO source type")
 		c.SourceTemplateName = "Blank"
 		c.SourceTemplateID = "00000000-0000-0000-0000-000000000000"
 		if c.SourceISO == "" {
 			errs = append(errs, errors.New("source_iso must be specified"))
 		}
 
-		default:
+	default:
 		errs = append(errs, fmt.Errorf("Invalid source_type: %s", c.SourceType))
 	}
 

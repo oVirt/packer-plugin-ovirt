@@ -105,8 +105,10 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	steps = append(steps, &stepSetupInitialRun{
 		Debug: b.config.PackerDebug,
 		Comm:  &b.config.Comm,
-	},
-	)
+	})
+	if b.config.SourceType == ISOSource {
+		steps = append(steps, &stepBootCommand{})
+	}
 	steps = append(steps, &communicator.StepConnect{
 		Config:    &b.config.Comm,
 		Host:      commHost,

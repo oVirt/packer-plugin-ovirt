@@ -19,7 +19,8 @@ type Config struct {
 	AccessConfig `mapstructure:",squash"`
 	SourceConfig `mapstructure:",squash"`
 
-	Comm communicator.Config `mapstructure:",squash"`
+	Comm        communicator.Config `mapstructure:",squash"`
+	BootCommand BootCommandConfig   `mapstructure:",squash"`
 
 	VMName    string `mapstructure:"vm_name"`
 	IPAddress string `mapstructure:"address"`
@@ -34,7 +35,6 @@ type Config struct {
 	TemplateName        string `mapstructure:"template_name"`
 	TemplateDescription string `mapstructure:"template_description"`
 
-	BootCommand   string `mapstructure:"boot_command"`
 	StorageDomain string `mapstructure:"storage_domain"`
 
 	ctx interpolate.Context

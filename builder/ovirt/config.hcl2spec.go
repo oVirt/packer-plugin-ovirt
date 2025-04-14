@@ -80,6 +80,14 @@ type FlatConfig struct {
 	WinRMUseSSL               *bool             `mapstructure:"winrm_use_ssl" cty:"winrm_use_ssl" hcl:"winrm_use_ssl"`
 	WinRMInsecure             *bool             `mapstructure:"winrm_insecure" cty:"winrm_insecure" hcl:"winrm_insecure"`
 	WinRMUseNTLM              *bool             `mapstructure:"winrm_use_ntlm" cty:"winrm_use_ntlm" hcl:"winrm_use_ntlm"`
+	BootGroupInterval         *string           `mapstructure:"boot_keygroup_interval" cty:"boot_keygroup_interval" hcl:"boot_keygroup_interval"`
+	BootWait                  *string           `mapstructure:"boot_wait" cty:"boot_wait" hcl:"boot_wait"`
+	BootCommand               []string          `mapstructure:"boot_command" cty:"boot_command" hcl:"boot_command"`
+	DisableVNC                *bool             `mapstructure:"disable_vnc" cty:"disable_vnc" hcl:"disable_vnc"`
+	BootKeyInterval           *string           `mapstructure:"boot_key_interval" cty:"boot_key_interval" hcl:"boot_key_interval"`
+	VNCPassword               *string           `mapstructure:"vnc_password" cty:"vnc_password" hcl:"vnc_password"`
+	VNCIP                     *string           `mapstructure:"vnc_ip" cty:"vnc_ip" hcl:"vnc_ip"`
+	VNCPort                   *int              `mapstructure:"vnc_port" cty:"vnc_port" hcl:"vnc_port"`
 	VMName                    *string           `mapstructure:"vm_name" cty:"vm_name" hcl:"vm_name"`
 	IPAddress                 *string           `mapstructure:"address" cty:"address" hcl:"address"`
 	Netmask                   *string           `mapstructure:"netmask" cty:"netmask" hcl:"netmask"`
@@ -90,7 +98,6 @@ type FlatConfig struct {
 	DiskSize                  *uint64           `mapstructure:"disk_size" cty:"disk_size" hcl:"disk_size"`
 	TemplateName              *string           `mapstructure:"template_name" cty:"template_name" hcl:"template_name"`
 	TemplateDescription       *string           `mapstructure:"template_description" cty:"template_description" hcl:"template_description"`
-	BootCommand               *string           `mapstructure:"boot_command" cty:"boot_command" hcl:"boot_command"`
 	StorageDomain             *string           `mapstructure:"storage_domain" cty:"storage_domain" hcl:"storage_domain"`
 }
 
@@ -176,6 +183,14 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"winrm_use_ssl":                &hcldec.AttrSpec{Name: "winrm_use_ssl", Type: cty.Bool, Required: false},
 		"winrm_insecure":               &hcldec.AttrSpec{Name: "winrm_insecure", Type: cty.Bool, Required: false},
 		"winrm_use_ntlm":               &hcldec.AttrSpec{Name: "winrm_use_ntlm", Type: cty.Bool, Required: false},
+		"boot_keygroup_interval":       &hcldec.AttrSpec{Name: "boot_keygroup_interval", Type: cty.String, Required: false},
+		"boot_wait":                    &hcldec.AttrSpec{Name: "boot_wait", Type: cty.String, Required: false},
+		"boot_command":                 &hcldec.AttrSpec{Name: "boot_command", Type: cty.List(cty.String), Required: false},
+		"disable_vnc":                  &hcldec.AttrSpec{Name: "disable_vnc", Type: cty.Bool, Required: false},
+		"boot_key_interval":            &hcldec.AttrSpec{Name: "boot_key_interval", Type: cty.String, Required: false},
+		"vnc_password":                 &hcldec.AttrSpec{Name: "vnc_password", Type: cty.String, Required: false},
+		"vnc_ip":                       &hcldec.AttrSpec{Name: "vnc_ip", Type: cty.String, Required: false},
+		"vnc_port":                     &hcldec.AttrSpec{Name: "vnc_port", Type: cty.Number, Required: false},
 		"vm_name":                      &hcldec.AttrSpec{Name: "vm_name", Type: cty.String, Required: false},
 		"address":                      &hcldec.AttrSpec{Name: "address", Type: cty.String, Required: false},
 		"netmask":                      &hcldec.AttrSpec{Name: "netmask", Type: cty.String, Required: false},
@@ -186,7 +201,6 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"disk_size":                    &hcldec.AttrSpec{Name: "disk_size", Type: cty.Number, Required: false},
 		"template_name":                &hcldec.AttrSpec{Name: "template_name", Type: cty.String, Required: false},
 		"template_description":         &hcldec.AttrSpec{Name: "template_description", Type: cty.String, Required: false},
-		"boot_command":                 &hcldec.AttrSpec{Name: "boot_command", Type: cty.String, Required: false},
 		"storage_domain":               &hcldec.AttrSpec{Name: "storage_domain", Type: cty.String, Required: false},
 	}
 	return s
