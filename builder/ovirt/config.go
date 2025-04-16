@@ -35,6 +35,8 @@ type Config struct {
 	TemplateName        string `mapstructure:"template_name"`
 	TemplateDescription string `mapstructure:"template_description"`
 
+	Network string `mapstructure:"network"`
+	VNICProfile string `mapstructure:"vnic_profile"`
 	StorageDomain string `mapstructure:"storage_domain"`
 
 	ctx interpolate.Context
@@ -55,6 +57,14 @@ func NewConfig(raws ...interface{}) (*Config, []string, error) {
 	var errs *packer.MultiError
 	errs = packer.MultiErrorAppend(errs, c.AccessConfig.Prepare(&c.ctx)...)
 	errs = packer.MultiErrorAppend(errs, c.SourceConfig.Prepare(&c.ctx)...)
+
+	if len(c.Network) == 0 && len(c.VNICProfile) != 0 {
+		c.Network = c.VNICProfile
+		log.Printf("Set network to %s (copy from VNICProfile)", c.Network)
+	} else if len(c.VNICProfile) == 0 && len(c.Network) != 0 {
+		c.VNICProfile = c.Network
+		log.Printf("Set VNICProfile to %s (copy from network)", c.VNICProfile)
+	}
 
 	if c.VMName == "" {
 		// Default to packer-[time-ordered-uuid]

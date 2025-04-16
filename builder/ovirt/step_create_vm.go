@@ -57,9 +57,15 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 
 	vmBuilder := ovirtsdk4.NewVmBuilder()
 	vmBuilder.Name(config.VMName)
-	vmBuilder.Cluster(ovirtsdk4.NewClusterBuilder().Id(clusterID).MustBuild())
-	vmBuilder.Template(ovirtsdk4.NewTemplateBuilder().Id(templateID).MustBuild())
-	vmBuilder.Type(ovirtsdk4.VMTYPE_SERVER)
+	vmBuilder.ClusterBuilder(ovirtsdk4.NewClusterBuilder().Id(clusterID))
+	vmBuilder.TemplateBuilder(ovirtsdk4.NewTemplateBuilder().Id(templateID))
+
+	if templateID == "00000000-0000-0000-0000-000000000000" {
+		vmBuilder.Type(ovirtsdk4.VMTYPE_SERVER)
+		vmBuilder.BiosBuilder(ovirtsdk4.NewBiosBuilder().Type(ovirtsdk4.BIOSTYPE_Q35_SEA_BIOS)) // TODO: config
+		vmBuilder.HighAvailabilityBuilder(ovirtsdk4.NewHighAvailabilityBuilder().Enabled(true))
+	}
+
 	vm := vmBuilder.MustBuild()
 
 	vmResp, err := conn.SystemService().VmsService().Add().Vm(vm).Send()

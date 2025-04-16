@@ -102,6 +102,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		// Assuming that builds starting from a template already have a boot disk.
 		steps = append(steps, &stepAddDisk{})
 	}
+	steps = append(steps, &stepAddNic{})
 	steps = append(steps, &stepSetupInitialRun{
 		Debug: b.config.PackerDebug,
 		Comm:  &b.config.Comm,
