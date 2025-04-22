@@ -4,6 +4,7 @@ package ovirt
 import (
 	"fmt"
 	"log"
+	"slices"
 
 	"github.com/hashicorp/packer-plugin-sdk/common"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
@@ -32,12 +33,18 @@ type Config struct {
 	DiskDescription string `mapstructure:"disk_description"`
 	DiskSize        uint64 `mapstructure:"disk_size"`
 
+	Cores           uint64 `mapstructure:"cpu_cores"`
+	Sockets         uint64 `mapstructure:"cpu_sockets"`
+	Memory          uint64 `mapstructure:"memory"` // In MB, same as vSphere plugin.
+	OperatingSystem string `mapstructure:"operating_system"`
+
 	TemplateName        string `mapstructure:"template_name"`
 	TemplateDescription string `mapstructure:"template_description"`
 
-	Network string `mapstructure:"network"`
-	VNICProfile string `mapstructure:"vnic_profile"`
+	Network       string `mapstructure:"network"`
+	VNICProfile   string `mapstructure:"vnic_profile"`
 	StorageDomain string `mapstructure:"storage_domain"`
+	BiosType      string `mapstructure:"bios_type"`
 
 	ctx interpolate.Context
 }
@@ -80,6 +87,31 @@ func NewConfig(raws ...interface{}) (*Config, []string, error) {
 	if c.NicName == "" {
 		c.NicName = "enp1s0"
 		log.Printf("Set default nic name to %s", c.NicName)
+	}
+
+	if c.Cores == 0 {
+		c.Cores = 1
+		log.Printf("Set default cpu cores to %d", c.Cores)
+	}
+	if c.Sockets == 0 {
+		c.Sockets = 1
+		log.Printf("Set default cpu sockets to %d", c.Sockets)
+	}
+	if c.Memory == 0 {
+		c.Memory = 2048
+		log.Printf("Set default memory to %d MB", c.Memory)
+	}
+
+	if len(c.BiosType) > 0 {
+		options := []ovirtsdk4.BiosType{
+			ovirtsdk4.BIOSTYPE_I440FX_SEA_BIOS,
+			ovirtsdk4.BIOSTYPE_Q35_OVMF,
+			ovirtsdk4.BIOSTYPE_Q35_SEA_BIOS,
+			ovirtsdk4.BIOSTYPE_Q35_SECURE_BOOT,
+		}
+		if !slices.Contains(options, ovirtsdk4.BiosType(c.BiosType)) {
+			errs = packer.MultiErrorAppend(errs, fmt.Errorf("Invalid bios_type: %s", c.BiosType))
+		}
 	}
 
 	errs = packer.MultiErrorAppend(errs, c.Comm.Prepare(&c.ctx)...)

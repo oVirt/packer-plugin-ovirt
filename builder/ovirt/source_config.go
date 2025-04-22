@@ -39,7 +39,7 @@ func (c *SourceConfig) Prepare(ctx *interpolate.Context) []error {
 		c.Cluster = "Default"
 	}
 	if c.CDName == "" {
-		c.CDName = "data"
+		c.CDName = "UNATTEND"
 	}
 
 	switch c.SourceType {

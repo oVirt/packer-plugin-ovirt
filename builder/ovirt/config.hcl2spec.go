@@ -96,9 +96,16 @@ type FlatConfig struct {
 	DiskName                  *string           `mapstructure:"disk_name" cty:"disk_name" hcl:"disk_name"`
 	DiskDescription           *string           `mapstructure:"disk_description" cty:"disk_description" hcl:"disk_description"`
 	DiskSize                  *uint64           `mapstructure:"disk_size" cty:"disk_size" hcl:"disk_size"`
+	Cores                     *uint64           `mapstructure:"cpu_cores" cty:"cpu_cores" hcl:"cpu_cores"`
+	Sockets                   *uint64           `mapstructure:"cpu_sockets" cty:"cpu_sockets" hcl:"cpu_sockets"`
+	Memory                    *uint64           `mapstructure:"memory" cty:"memory" hcl:"memory"`
+	OperatingSystem           *string           `mapstructure:"operating_system" cty:"operating_system" hcl:"operating_system"`
 	TemplateName              *string           `mapstructure:"template_name" cty:"template_name" hcl:"template_name"`
 	TemplateDescription       *string           `mapstructure:"template_description" cty:"template_description" hcl:"template_description"`
+	Network                   *string           `mapstructure:"network" cty:"network" hcl:"network"`
+	VNICProfile               *string           `mapstructure:"vnic_profile" cty:"vnic_profile" hcl:"vnic_profile"`
 	StorageDomain             *string           `mapstructure:"storage_domain" cty:"storage_domain" hcl:"storage_domain"`
+	BiosType                  *string           `mapstructure:"bios_type" cty:"bios_type" hcl:"bios_type"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -199,9 +206,16 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"disk_name":                    &hcldec.AttrSpec{Name: "disk_name", Type: cty.String, Required: false},
 		"disk_description":             &hcldec.AttrSpec{Name: "disk_description", Type: cty.String, Required: false},
 		"disk_size":                    &hcldec.AttrSpec{Name: "disk_size", Type: cty.Number, Required: false},
+		"cpu_cores":                    &hcldec.AttrSpec{Name: "cpu_cores", Type: cty.Number, Required: false},
+		"cpu_sockets":                  &hcldec.AttrSpec{Name: "cpu_sockets", Type: cty.Number, Required: false},
+		"memory":                       &hcldec.AttrSpec{Name: "memory", Type: cty.Number, Required: false},
+		"operating_system":             &hcldec.AttrSpec{Name: "operating_system", Type: cty.String, Required: false},
 		"template_name":                &hcldec.AttrSpec{Name: "template_name", Type: cty.String, Required: false},
 		"template_description":         &hcldec.AttrSpec{Name: "template_description", Type: cty.String, Required: false},
+		"network":                      &hcldec.AttrSpec{Name: "network", Type: cty.String, Required: false},
+		"vnic_profile":                 &hcldec.AttrSpec{Name: "vnic_profile", Type: cty.String, Required: false},
 		"storage_domain":               &hcldec.AttrSpec{Name: "storage_domain", Type: cty.String, Required: false},
+		"bios_type":                    &hcldec.AttrSpec{Name: "bios_type", Type: cty.String, Required: false},
 	}
 	return s
 }

@@ -24,9 +24,9 @@ func (s *stepCreateVM) findTemplate(conn *ovirtsdk4.Connection, name string, ver
 	if err != nil {
 		return "", fmt.Errorf("could not search for template %s: %w", name, err)
 	}
-	templateSlice := resp.MustTemplates()
+	templates := resp.MustTemplates().Slice()
 
-	for _, tp := range templateSlice.Slice() {
+	for _, tp := range templates {
 		if tp.MustVersion().MustVersionNumber() == version {
 			return tp.MustId(), nil
 		}
@@ -60,9 +60,22 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 	vmBuilder.ClusterBuilder(ovirtsdk4.NewClusterBuilder().Id(clusterID))
 	vmBuilder.TemplateBuilder(ovirtsdk4.NewTemplateBuilder().Id(templateID))
 
+	if len(config.BiosType) > 0 {
+		vmBuilder.BiosBuilder(ovirtsdk4.NewBiosBuilder().Type(ovirtsdk4.BiosType(config.BiosType)))
+	}
+
+	osBuilder := ovirtsdk4.NewOperatingSystemBuilder()
+	osBuilder.Type("windows_2022x64")
+	vmBuilder.OsBuilder(osBuilder)
+
+	cpuBuilder := ovirtsdk4.NewCpuBuilder()
+	cpuBuilder.TopologyBuilder(ovirtsdk4.NewCpuTopologyBuilder().Cores(int64(config.Cores)).Sockets(int64(config.Sockets)))
+	vmBuilder.CpuBuilder(cpuBuilder)
+
+	vmBuilder.Memory(int64(config.Memory) * 1024 * 1024)
+
 	if templateID == "00000000-0000-0000-0000-000000000000" {
 		vmBuilder.Type(ovirtsdk4.VMTYPE_SERVER)
-		vmBuilder.BiosBuilder(ovirtsdk4.NewBiosBuilder().Type(ovirtsdk4.BIOSTYPE_Q35_SEA_BIOS)) // TODO: config
 		vmBuilder.HighAvailabilityBuilder(ovirtsdk4.NewHighAvailabilityBuilder().Enabled(true))
 	}
 
