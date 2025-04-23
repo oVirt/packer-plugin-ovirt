@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
 	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
 	"github.com/hashicorp/packer-plugin-sdk/uuid"
+	ovirtsdk4 "github.com/ovirt/go-ovirt/v4"
 )
 
 type Config struct {

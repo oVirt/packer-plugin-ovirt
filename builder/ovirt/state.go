@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
-	ovirtsdk4 "github.com/ovirt/go-ovirt"
+	ovirtsdk4 "github.com/ovirt/go-ovirt/v4"
 )
 
 // StateRefreshFunc is a function type used for StateChangeConf that is

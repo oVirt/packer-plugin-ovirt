@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/hcl/v2 v2.23.0
 	github.com/hashicorp/packer-plugin-sdk v0.6.1
-	github.com/ovirt/go-ovirt v4.3.4+incompatible
+	github.com/ovirt/go-ovirt/v4 v4.5.0
 	github.com/zclconf/go-cty v1.16.2
 	golang.org/x/crypto v0.36.0
 )

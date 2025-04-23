@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
-	ovirtsdk4 "github.com/ovirt/go-ovirt"
+	ovirtsdk4 "github.com/ovirt/go-ovirt/v4"
 )
 
 type stepCreateTemplate struct{}
@@ -47,6 +47,12 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 			state.Put("error", err)
 			return multistep.ActionHalt
 		}
+	}
+
+	// Remove VM payloads if they were set during the initial run step.
+	if _, ok := state.GetOk("payload_set"); ok {
+		vmService := conn.SystemService().VmsService().VmService(vmID)
+		vmService.Update().Vm(ovirtsdk4.NewVmBuilder().Payloads(&ovirtsdk4.PayloadSlice{}).MustBuild()).Send()
 	}
 
 	// We need to build a new VM as the object contained in the template should only contain the ID.
