@@ -37,6 +37,7 @@ type Config struct {
 	Sockets         uint64 `mapstructure:"cpu_sockets"`
 	Memory          uint64 `mapstructure:"memory"` // In MB, same as vSphere plugin.
 	OperatingSystem string `mapstructure:"operating_system"`
+	Tpm             bool   `mapstructure:"tpm"`
 
 	TemplateName        string `mapstructure:"template_name"`
 	TemplateDescription string `mapstructure:"template_description"`

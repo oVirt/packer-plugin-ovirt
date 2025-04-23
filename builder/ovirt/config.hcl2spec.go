@@ -100,6 +100,7 @@ type FlatConfig struct {
 	Sockets                   *uint64           `mapstructure:"cpu_sockets" cty:"cpu_sockets" hcl:"cpu_sockets"`
 	Memory                    *uint64           `mapstructure:"memory" cty:"memory" hcl:"memory"`
 	OperatingSystem           *string           `mapstructure:"operating_system" cty:"operating_system" hcl:"operating_system"`
+	Tpm                       *bool             `mapstructure:"tpm" cty:"tpm" hcl:"tpm"`
 	TemplateName              *string           `mapstructure:"template_name" cty:"template_name" hcl:"template_name"`
 	TemplateDescription       *string           `mapstructure:"template_description" cty:"template_description" hcl:"template_description"`
 	Network                   *string           `mapstructure:"network" cty:"network" hcl:"network"`
@@ -210,6 +211,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"cpu_sockets":                  &hcldec.AttrSpec{Name: "cpu_sockets", Type: cty.Number, Required: false},
 		"memory":                       &hcldec.AttrSpec{Name: "memory", Type: cty.Number, Required: false},
 		"operating_system":             &hcldec.AttrSpec{Name: "operating_system", Type: cty.String, Required: false},
+		"tpm":                          &hcldec.AttrSpec{Name: "tpm", Type: cty.Bool, Required: false},
 		"template_name":                &hcldec.AttrSpec{Name: "template_name", Type: cty.String, Required: false},
 		"template_description":         &hcldec.AttrSpec{Name: "template_description", Type: cty.String, Required: false},
 		"network":                      &hcldec.AttrSpec{Name: "network", Type: cty.String, Required: false},

@@ -64,9 +64,39 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 		vmBuilder.BiosBuilder(ovirtsdk4.NewBiosBuilder().Type(ovirtsdk4.BiosType(config.BiosType)))
 	}
 
-	osBuilder := ovirtsdk4.NewOperatingSystemBuilder()
-	osBuilder.Type("windows_2022x64")
-	vmBuilder.OsBuilder(osBuilder)
+	vmBuilder.TpmEnabled(config.Tpm)
+
+	if len(config.OperatingSystem) > 0 {
+		osService := conn.SystemService().OperatingSystemsService()
+		osResp, err := osService.List().Send()
+		if err != nil {
+			err = fmt.Errorf("could not list operating systems: %w", err)
+			ui.Error(err.Error())
+			state.Put("error", err)
+			return multistep.ActionHalt
+		}
+		options := osResp.MustOperatingSystem().Slice()
+
+		found := false
+		for i := range options {
+			log.Printf("Found operating system: %s", options[i].MustName())
+			if options[i].MustName() == config.OperatingSystem {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			err = fmt.Errorf("could not find operating system '%s'", config.OperatingSystem)
+			ui.Error(err.Error())
+			state.Put("error", err)
+			return multistep.ActionHalt
+		}
+
+		osBuilder := ovirtsdk4.NewOperatingSystemBuilder()
+		osBuilder.Type(config.OperatingSystem)
+		vmBuilder.OsBuilder(osBuilder)
+	}
 
 	cpuBuilder := ovirtsdk4.NewCpuBuilder()
 	cpuBuilder.TopologyBuilder(ovirtsdk4.NewCpuTopologyBuilder().Cores(int64(config.Cores)).Sockets(int64(config.Sockets)))
