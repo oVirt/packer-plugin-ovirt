@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"slices"
 	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -120,10 +121,8 @@ func WaitForState(conf *StateChangeConf) (i any, err error) {
 			return i, err
 		}
 
-		for _, t := range conf.Target {
-			if currentState == t {
-				return i, err
-			}
+		if slices.Contains(conf.Target, currentState) {
+			return i, err
 		}
 
 		if conf.StepState != nil {
@@ -132,13 +131,7 @@ func WaitForState(conf *StateChangeConf) (i any, err error) {
 			}
 		}
 
-		found := false
-		for _, allowed := range conf.Pending {
-			if currentState == allowed {
-				found = true
-				break
-			}
-		}
+		found := slices.Contains(conf.Pending, currentState)
 		if !found {
 			return nil, fmt.Errorf("unexpected state '%s', wanted target '%s'", currentState, conf.Target)
 		}
