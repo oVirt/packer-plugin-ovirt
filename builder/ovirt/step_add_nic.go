@@ -107,7 +107,7 @@ func (s *stepAddNic) Run(ctx context.Context, state multistep.StateBag) multiste
 	}
 
 	nicBuilder := ovirtsdk4.NewNicBuilder()
-	nicBuilder.Name("bobby")
+	nicBuilder.Name("nic1")
 	nicBuilder.Plugged(true)
 	nicBuilder.Interface(ovirtsdk4.NICINTERFACE_VIRTIO)
 	nicBuilder.NetworkBuilder(ovirtsdk4.NewNetworkBuilder().Id(networkID))
