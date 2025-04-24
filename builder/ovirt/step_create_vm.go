@@ -15,7 +15,7 @@ type stepCreateVM struct{}
 func (s *stepCreateVM) findTemplate(conn *ovirtsdk4.Connection, name string, version int64) (string, error) {
 	if name == "Blank" {
 		log.Println("Defaulting to nil UUID for Blank template.")
-		return "00000000-0000-0000-0000-000000000000", nil
+		return BlankTemplateUUID, nil
 	}
 
 	log.Printf("Searching for template '%s' version '%d'\n", name, version)
@@ -110,7 +110,7 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 
 	vmBuilder.Memory(int64(config.Memory) * 1024 * 1024)
 
-	if templateID == "00000000-0000-0000-0000-000000000000" {
+	if templateID == BlankTemplateUUID {
 		vmBuilder.Type(ovirtsdk4.VMTYPE_SERVER)
 		vmBuilder.HighAvailabilityBuilder(ovirtsdk4.NewHighAvailabilityBuilder().Enabled(true))
 	}

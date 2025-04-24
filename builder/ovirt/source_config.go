@@ -14,6 +14,8 @@ const (
 	ISOSource      = "iso"
 )
 
+const BlankTemplateUUID = "00000000-0000-0000-0000-000000000000"
+
 // SourceConfig contains the various source properties for an oVirt image
 type SourceConfig struct {
 	Cluster string `mapstructure:"cluster"`
@@ -68,7 +70,7 @@ func (c *SourceConfig) Prepare(ctx *interpolate.Context) []error {
 	case ISOSource:
 		log.Println("Using ISO source type")
 		c.SourceTemplateName = "Blank"
-		c.SourceTemplateID = "00000000-0000-0000-0000-000000000000"
+		c.SourceTemplateID = BlankTemplateUUID
 		if c.SourceISO == "" {
 			errs = append(errs, errors.New("source_iso must be specified"))
 		}
