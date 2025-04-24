@@ -58,7 +58,12 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 	// Remove VM payloads if they were set during the initial run step.
 	if _, ok := state.GetOk("payload_set"); ok {
 		vmService := conn.SystemService().VmsService().VmService(vmID)
-		vmService.Update().Vm(ovirtsdk4.NewVmBuilder().Payloads(&ovirtsdk4.PayloadSlice{}).MustBuild()).Send()
+		if _, err := vmService.Update().Vm(ovirtsdk4.NewVmBuilder().Payloads(&ovirtsdk4.PayloadSlice{}).MustBuild()).Send(); err != nil {
+			err = fmt.Errorf("could not remove payloads from VM: %w", err)
+			state.Put("error", err)
+			ui.Error(err.Error())
+			return multistep.ActionHalt
+		}
 	}
 
 	// We need to build a new VM as the object contained in the template should only contain the ID.
