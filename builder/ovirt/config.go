@@ -56,7 +56,7 @@ type Config struct {
 	ctx interpolate.Context
 }
 
-func NewConfig(raws ...interface{}) (*Config, []string, error) {
+func NewConfig(raws ...any) (*Config, []string, error) {
 	c := new(Config)
 
 	err := config.Decode(c, &config.DecodeOpts{

@@ -30,7 +30,7 @@ func (a *Artifact) String() string {
 }
 
 // State returns specific details from the artifact. Not used for oVirt.
-func (a *Artifact) State(name string) interface{} {
+func (a *Artifact) State(name string) any {
 	return nil
 }
 

@@ -19,7 +19,7 @@ import (
 // object.
 // `state` is the latest state of that object.
 // `err` is any error that may have happened while refreshing the state.
-type StateRefreshFunc func() (result interface{}, state string, err error)
+type StateRefreshFunc func() (result any, state string, err error)
 
 // StateChangeConf is the configuration struct used for `WaitForState`.
 type StateChangeConf struct {
@@ -34,7 +34,7 @@ type StateChangeConf struct {
 func VMStateRefreshFunc(
 	conn *ovirtsdk4.Connection, vmID string,
 ) StateRefreshFunc {
-	return func() (interface{}, string, error) {
+	return func() (any, string, error) {
 		resp, err := conn.SystemService().
 			VmsService().
 			VmService(vmID).
@@ -58,7 +58,7 @@ func VMStateRefreshFunc(
 func DiskStateRefreshFunc(
 	conn *ovirtsdk4.Connection, diskID string,
 ) StateRefreshFunc {
-	return func() (interface{}, string, error) {
+	return func() (any, string, error) {
 		resp, err := conn.SystemService().
 			DisksService().
 			DiskService(diskID).
@@ -82,7 +82,7 @@ func DiskStateRefreshFunc(
 func DiskAttachmentStateRefreshFunc(
 	conn *ovirtsdk4.Connection, vmID string, diskID string,
 ) StateRefreshFunc {
-	return func() (interface{}, string, error) {
+	return func() (any, string, error) {
 		resp, err := conn.SystemService().
 			VmsService().
 			VmService(vmID).
@@ -110,7 +110,7 @@ func DiskAttachmentStateRefreshFunc(
 
 // WaitForState watches an object and waits for it to achieve a certain
 // state.
-func WaitForState(conf *StateChangeConf) (i interface{}, err error) {
+func WaitForState(conf *StateChangeConf) (i any, err error) {
 	log.Printf("Waiting for state to become: %s", conf.Target)
 
 	for {
