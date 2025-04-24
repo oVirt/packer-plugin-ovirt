@@ -15,7 +15,7 @@ import (
 )
 
 // BuilderID defines the unique id for the builder.
-const BuilderID = "ganto.ovirt"
+const BuilderID = "ovirt.ovirt"
 
 // Builder is a builder implementation that creates oVirt custom images.
 type Builder struct {
