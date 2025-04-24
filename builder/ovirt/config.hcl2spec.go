@@ -107,6 +107,7 @@ type FlatConfig struct {
 	VNICProfile               *string           `mapstructure:"vnic_profile" cty:"vnic_profile" hcl:"vnic_profile"`
 	StorageDomain             *string           `mapstructure:"storage_domain" cty:"storage_domain" hcl:"storage_domain"`
 	BiosType                  *string           `mapstructure:"bios_type" cty:"bios_type" hcl:"bios_type"`
+	ShutdownCommand           *string           `mapstructure:"shutdown_command" cty:"shutdown_command" hcl:"shutdown_command"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -218,6 +219,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"vnic_profile":                 &hcldec.AttrSpec{Name: "vnic_profile", Type: cty.String, Required: false},
 		"storage_domain":               &hcldec.AttrSpec{Name: "storage_domain", Type: cty.String, Required: false},
 		"bios_type":                    &hcldec.AttrSpec{Name: "bios_type", Type: cty.String, Required: false},
+		"shutdown_command":             &hcldec.AttrSpec{Name: "shutdown_command", Type: cty.String, Required: false},
 	}
 	return s
 }

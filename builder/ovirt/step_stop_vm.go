@@ -1,6 +1,7 @@
 package ovirt
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 
@@ -12,20 +13,40 @@ import (
 type stepStopVM struct{}
 
 func (s *stepStopVM) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
-	ui := state.Get("ui").(packer.Ui)
+	config := state.Get("config").(*Config)
 	conn := state.Get("conn").(*ovirtsdk4.Connection)
+	ui := state.Get("ui").(packer.Ui)
 	vmID := state.Get("vm_id").(string)
 
 	ui.Say(fmt.Sprintf("Stopping VM: %s ...", vmID))
-	_, err := conn.SystemService().
-		VmsService().
-		VmService(vmID).
-		Shutdown().
-		Send()
-	if err != nil {
-		err = fmt.Errorf("Error shutting down VM: %s", err)
-		state.Put("error", err)
-		return multistep.ActionHalt
+	if len(config.ShutdownCommand) > 0 {
+		ui.Message(fmt.Sprintf("Sending shutdown command to VM: %s ...", vmID))
+
+		comm, _ := state.Get("communicator").(packer.Communicator)
+
+		var stdout, stderr bytes.Buffer
+		cmd := &packer.RemoteCmd{
+			Command: config.ShutdownCommand,
+			Stdout:  &stdout,
+			Stderr:  &stderr,
+		}
+		err := comm.Start(ctx, cmd)
+		if err != nil {
+			state.Put("error", fmt.Errorf("error sending shutdown command: %s", err))
+			return multistep.ActionHalt
+		}
+
+	} else {
+		_, err := conn.SystemService().
+			VmsService().
+			VmService(vmID).
+			Shutdown().
+			Send()
+		if err != nil {
+			err = fmt.Errorf("Error shutting down VM: %s", err)
+			state.Put("error", err)
+			return multistep.ActionHalt
+		}
 	}
 
 	ui.Message(fmt.Sprintf("Waiting for VM to stop: %s ...", vmID))

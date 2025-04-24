@@ -48,6 +48,8 @@ type Config struct {
 	StorageDomain string `mapstructure:"storage_domain"`
 	BiosType      string `mapstructure:"bios_type"`
 
+	ShutdownCommand string `mapstructure:"shutdown_command"`
+
 	ctx interpolate.Context
 }
 
