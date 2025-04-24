@@ -107,14 +107,6 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 		return multistep.ActionHalt
 	}
 
-	_, err = conn.SystemService().VmsService().VmService(vmID).Remove().Send()
-	if err != nil {
-		err = fmt.Errorf("could not remove temporary virtual machine: %w", err)
-		state.Put("error", err)
-		ui.Error(err.Error())
-		return multistep.ActionContinue
-	}
-
 	return multistep.ActionContinue
 }
 
