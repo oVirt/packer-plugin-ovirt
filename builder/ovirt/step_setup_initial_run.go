@@ -204,7 +204,11 @@ func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag)
 	if len(config.CDFiles) == 0 && len(config.CDContent) == 0 {
 		// Using CloudInit/Sysprep in oVirt overwrites the virtual CDROM containing user-supplied sysprep files.
 		// We should only enable this when no files were supplied.
-		startReq.UseCloudInit(true)
+		if config.CloudInit {
+			startReq.UseCloudInit(true)
+		} else if config.SysPrep {
+			startReq.UseSysprep(true)
+		}
 	}
 	if _, err := startReq.Send(); err != nil {
 		err = fmt.Errorf("could not start VM: %s", err)

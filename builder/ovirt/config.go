@@ -48,6 +48,9 @@ type Config struct {
 	StorageDomain string `mapstructure:"storage_domain"`
 	BiosType      string `mapstructure:"bios_type"`
 
+	CloudInit bool `mapstructure:"cloud_init"`
+	SysPrep   bool `mapstructure:"sysprep"`
+
 	ShutdownCommand string `mapstructure:"shutdown_command"`
 
 	ctx interpolate.Context
@@ -116,6 +119,10 @@ func NewConfig(raws ...interface{}) (*Config, []string, error) {
 		if !slices.Contains(options, ovirtsdk4.BiosType(c.BiosType)) {
 			errs = packer.MultiErrorAppend(errs, fmt.Errorf("Invalid bios_type: %s", c.BiosType))
 		}
+	}
+
+	if c.CloudInit && c.SysPrep {
+		errs = packer.MultiErrorAppend(errs, fmt.Errorf("CloudInit and SysPrep cannot be used together"))
 	}
 
 	errs = packer.MultiErrorAppend(errs, c.Comm.Prepare(&c.ctx)...)
