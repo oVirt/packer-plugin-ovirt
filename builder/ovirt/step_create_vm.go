@@ -38,8 +38,14 @@ func (s *stepCreateVM) findTemplate(conn *ovirtsdk4.Connection, name string, ver
 func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	config := state.Get("config").(*Config)
 	ui := state.Get("ui").(packer.Ui)
-	conn := state.Get("conn").(*ovirtsdk4.Connection)
 	clusterID := state.Get("cluster_id").(string)
+
+	conn, err := ovirtConnect(config, state)
+	if err != nil {
+		ui.Error(err.Error())
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
 
 	ui.Say("Creating virtual machine...")
 
@@ -158,8 +164,13 @@ func (s *stepCreateVM) Cleanup(state multistep.StateBag) {
 	}
 
 	ui := state.Get("ui").(packer.Ui)
-	conn := state.Get("conn").(*ovirtsdk4.Connection)
+	config := state.Get("config").(*Config)
 	vmID := state.Get("vm_id").(string)
+
+	conn, err := ovirtConnect(config, state)
+	if err != nil {
+		ui.Error(err.Error())
+	}
 
 	ui.Say(fmt.Sprintf("Deleting virtual machine: %s ...", vmID))
 

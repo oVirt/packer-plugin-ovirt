@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/bootcommand"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
-	ovirtsdk4 "github.com/ovirt/go-ovirt/v4"
 )
 
 type adaptor struct {
@@ -36,9 +35,15 @@ type stepBootCommand struct{}
 // Run executes the Packer build step that configures the initial run setup
 func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	config := state.Get("config").(*Config)
-	conn := state.Get("conn").(*ovirtsdk4.Connection)
 	ui := state.Get("ui").(packer.Ui)
 	vmID := state.Get("vm_id").(string)
+
+	conn, err := ovirtConnect(config, state)
+	if err != nil {
+		ui.Error(err.Error())
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
 
 	if len(config.BootCommand.VNCConfig.BootCommand) == 0 {
 		ui.Say("No boot command provided, skipping...")

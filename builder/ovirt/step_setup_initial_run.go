@@ -47,7 +47,13 @@ func (s *stepSetupInitialRun) readFile(name string) (*ovirtsdk4.File, error) {
 func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	config := state.Get("config").(*Config)
 	ui := state.Get("ui").(packer.Ui)
-	conn := state.Get("conn").(*ovirtsdk4.Connection)
+
+	conn, err := ovirtConnect(config, state)
+	if err != nil {
+		ui.Error(err.Error())
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
 
 	ui.Say("Setting up initial run...")
 
@@ -246,10 +252,15 @@ func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag)
 
 // Cleanup any resources that may have been created during the Run phase.
 func (s *stepSetupInitialRun) Cleanup(state multistep.StateBag) {
-	conn := state.Get("conn").(*ovirtsdk4.Connection)
+	config := state.Get("config").(*Config)
 	ui := state.Get("ui").(packer.Ui)
-
 	vmID := state.Get("vm_id").(string)
+
+	conn, err := ovirtConnect(config, state)
+	if err != nil {
+		ui.Error(err.Error())
+	}
+
 	vmService := conn.SystemService().VmsService().VmService(vmID)
 
 	// It's not possible to delete VMs that are still running.

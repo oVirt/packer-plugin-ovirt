@@ -13,9 +13,16 @@ import (
 type stepDetachDisk struct{}
 
 func (s *stepDetachDisk) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
+	config := state.Get("config").(*Config)
 	ui := state.Get("ui").(packer.Ui)
-	conn := state.Get("conn").(*ovirtsdk4.Connection)
 	vmID := state.Get("vm_id").(string)
+
+	conn, err := ovirtConnect(config, state)
+	if err != nil {
+		ui.Error(err.Error())
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
 
 	ui.Say("Detaching disk from VM ...")
 

@@ -14,9 +14,15 @@ type stepStopVM struct{}
 
 func (s *stepStopVM) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	config := state.Get("config").(*Config)
-	conn := state.Get("conn").(*ovirtsdk4.Connection)
 	ui := state.Get("ui").(packer.Ui)
 	vmID := state.Get("vm_id").(string)
+
+	conn, err := ovirtConnect(config, state)
+	if err != nil {
+		ui.Error(err.Error())
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
 
 	ui.Say(fmt.Sprintf("Stopping VM: %s ...", vmID))
 	if len(config.ShutdownCommand) > 0 {

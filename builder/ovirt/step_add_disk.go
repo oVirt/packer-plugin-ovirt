@@ -30,8 +30,14 @@ func (s *stepAddDisk) findStorageDomain(conn *ovirtsdk4.Connection, name string)
 func (s *stepAddDisk) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
 	config := state.Get("config").(*Config)
 	ui := state.Get("ui").(packer.Ui)
-	conn := state.Get("conn").(*ovirtsdk4.Connection)
 	vmID := state.Get("vm_id").(string)
+
+	conn, err := ovirtConnect(config, state)
+	if err != nil {
+		ui.Error(err.Error())
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
 
 	storageDomainID, err := s.findStorageDomain(conn, config.StorageDomain)
 	if err != nil {

@@ -38,32 +38,54 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 	return nil, nil, nil
 }
 
-// Run is the main function executing the image build.
-func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
-	var err error
+func ovirtConnect(config *Config, state multistep.StateBag) (*ovirtsdk4.Connection, error) {
+	// Reuse connection from the state bag if it's usable, create a new one otherwise.
+	// Running provisioners may take a while (depending on user config) and makes us exceed the oVirt session timeout.
+	if existing, ok := state.GetOk("conn"); ok {
+		if conn, ok := existing.(*ovirtsdk4.Connection); ok {
+			if conn.Test() == nil {
+				return conn, nil
+			}
+
+			// A this point it looks like the existing connection is not usable,
+			// so we need to close it and create a new one.
+			conn.Close()
+		}
+	}
 
 	conn, err := ovirtsdk4.NewConnectionBuilder().
-		URL(b.config.ovirtURL.String()).
-		Username(b.config.Username).
-		Password(b.config.Password).
-		Insecure(b.config.SkipCertValidation).
+		URL(config.ovirtURL.String()).
+		Username(config.Username).
+		Password(config.Password).
+		Insecure(config.SkipCertValidation).
 		Compress(true).
 		Timeout(time.Second * 10).
 		Build()
 	if err != nil {
-		return nil, fmt.Errorf("oVirt: Connection failed, reason: %s", err.Error())
+		return nil, fmt.Errorf("oVirt: connection failed, reason: %s", err.Error())
 	}
 
-	defer conn.Close()
+	state.Put("conn", conn)
+	return conn, nil
+}
 
-	log.Printf("Successfully connected to %s\n", b.config.ovirtURL.String())
+// Run is the main function executing the image build.
+func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
+	var err error
 
 	// Set up the state
 	state := new(multistep.BasicStateBag)
 	state.Put("config", &b.config)
-	state.Put("conn", conn)
 	state.Put("hook", hook)
 	state.Put("ui", ui)
+
+	conn, err := ovirtConnect(&b.config, state)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	log.Printf("Successfully connected to %s\n", b.config.ovirtURL.String())
 
 	cResp, err := conn.SystemService().
 		ClustersService().
