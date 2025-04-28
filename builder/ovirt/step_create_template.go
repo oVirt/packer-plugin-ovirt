@@ -91,6 +91,7 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 	}
 
 	template = templateResp.MustTemplate()
+	state.Put("template_id", template.MustId())
 
 	// Our temporary VM will be locked again while the template is being created.
 	ui.Message(fmt.Sprintf("Waiting for temporary virtual machine to become ready (status down) ..."))

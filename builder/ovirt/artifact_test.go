@@ -14,7 +14,7 @@ func TestArtifactId(t *testing.T) {
 	expected := `c2867299-28ea-48a2-922a-805b999fcb2d`
 
 	a := &Artifact{
-		diskID: "c2867299-28ea-48a2-922a-805b999fcb2d",
+		id: "c2867299-28ea-48a2-922a-805b999fcb2d",
 	}
 
 	result := a.Id()
@@ -27,7 +27,7 @@ func TestArtifactString(t *testing.T) {
 	expected := "A disk was created: c2867299-28ea-48a2-922a-805b999fcb2d"
 
 	a := &Artifact{
-		diskID: "c2867299-28ea-48a2-922a-805b999fcb2d",
+		id: "c2867299-28ea-48a2-922a-805b999fcb2d",
 	}
 	result := a.String()
 	if result != expected {

@@ -94,6 +94,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	if err != nil {
 		return nil, fmt.Errorf("Error getting cluster list: %w", err)
 	}
+
 	var clusterID string
 	if clusters, ok := cResp.Clusters(); ok {
 		for _, cluster := range clusters.Slice() {
@@ -112,13 +113,12 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	state.Put("cluster_id", clusterID)
 
 	// Build the steps
-	steps := []multistep.Step{}
+	steps := make([]multistep.Step, 0, 20)
 	steps = append(steps, &stepKeyPair{
 		Debug:        b.config.PackerDebug,
 		Comm:         &b.config.Comm,
 		DebugKeyPath: fmt.Sprintf("ovirt_%s.pem", b.config.PackerBuildName),
-	},
-	)
+	})
 	steps = append(steps, &stepCreateVM{})
 	if b.config.SourceType == ISOSource {
 		// Assuming that builds starting from a template already have a boot disk.
@@ -136,19 +136,16 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		Config:    &b.config.Comm,
 		Host:      commHost,
 		SSHConfig: b.config.Comm.SSHConfigFunc(),
-	},
-	)
+	})
 	steps = append(steps, &commonsteps.StepProvision{})
 	steps = append(steps, &commonsteps.StepCleanupTempKeys{
 		Comm: &b.config.Comm,
-	},
-	)
+	})
 	steps = append(steps, &stepStopVM{})
 	steps = append(steps, &stepUpdateDisk{})
 	if len(b.config.TemplateName) != 0 {
 		steps = append(steps, &stepCreateTemplate{})
-	}
-	if len(b.config.DiskName) != 0 {
+	} else {
 		steps = append(steps, &stepDetachDisk{})
 	}
 
@@ -168,15 +165,20 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		return nil, rawErr.(error)
 	}
 
-	// If there are no images, then just return
-	if _, ok := state.GetOk("disk_id"); !ok {
-		return nil, nil
+	if len(b.config.TemplateName) != 0 {
+		if templateID, ok := state.GetOk("template_id"); ok {
+			return &Artifact{
+				template: true,
+				id:       templateID.(string),
+			}, nil
+		}
+	} else {
+		if diskID, ok := state.GetOk("disk_id"); ok {
+			return &Artifact{
+				id: diskID.(string),
+			}, nil
+		}
 	}
 
-	// Build the artifact and return it
-	artifact := &Artifact{
-		diskID: state.Get("disk_id").(string),
-	}
-
-	return artifact, nil
+	return nil, nil
 }

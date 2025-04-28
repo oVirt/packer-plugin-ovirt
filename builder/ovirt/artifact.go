@@ -2,12 +2,12 @@ package ovirt
 
 import (
 	"fmt"
-	"log"
 )
 
 // Artifact is an artifact implementation that contains built disk.
 type Artifact struct {
-	diskID string
+	template bool
+	id       string
 }
 
 // BuilderId uniquely identifies the builder.
@@ -22,11 +22,14 @@ func (*Artifact) Files() []string {
 
 // Id returns the disk identifier of the artifact.
 func (a *Artifact) Id() string {
-	return a.diskID
+	return a.id
 }
 
 func (a *Artifact) String() string {
-	return fmt.Sprintf("A disk was created: %s", a.diskID)
+	if a.template {
+		return fmt.Sprintf("A template was created: %s", a.id)
+	}
+	return fmt.Sprintf("A disk was created: %s", a.id)
 }
 
 // State returns specific details from the artifact. Not used for oVirt.
@@ -34,9 +37,7 @@ func (a *Artifact) State(name string) any {
 	return nil
 }
 
-// Destroy deletes the custom image associated with the artifact.
+// Destroy deletes the artifact. Not used for oVirt.
 func (a *Artifact) Destroy() error {
-	log.Printf("Destroying disk: %s", a.diskID)
-	// TODO
 	return nil
 }
