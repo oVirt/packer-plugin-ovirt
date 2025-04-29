@@ -52,6 +52,7 @@ type Config struct {
 	SysPrep   bool `mapstructure:"sysprep"`
 
 	ShutdownCommand string `mapstructure:"shutdown_command"`
+	RemoveCDrom     bool   `mapstructure:"remove_cdrom"`
 
 	ctx interpolate.Context
 }

@@ -113,9 +113,8 @@ func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag)
 
 		vmBuilder.OsBuilder(osBuilder)
 
-		// TODO: The `current` parameter mounts the cdrom for the next boot. Does this work with installs that require a reboot?
 		cdromService := vmService.CdromsService()
-		if _, err := cdromService.Add().Cdrom(cdromBuilder.MustBuild()).Query("current", "true").Send(); err != nil {
+		if _, err := cdromService.Add().Cdrom(cdromBuilder.MustBuild()).Send(); err != nil {
 			err = fmt.Errorf("could not attach CDROM: %s", err)
 			ui.Error(err.Error())
 			state.Put("error", err)

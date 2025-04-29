@@ -142,6 +142,9 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		Comm: &b.config.Comm,
 	})
 	steps = append(steps, &stepStopVM{})
+	if b.config.RemoveCDrom {
+		steps = append(steps, &stepDetachCDrom{})
+	}
 	steps = append(steps, &stepUpdateDisk{})
 	if len(b.config.TemplateName) != 0 {
 		steps = append(steps, &stepCreateTemplate{})
