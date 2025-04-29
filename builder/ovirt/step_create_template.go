@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
@@ -43,9 +44,11 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}
-	tpSlice, _ := tpsResp.Templates()
+	existing := tpsResp.MustTemplates().Slice()
+	log.Printf("Found %d templates with the same name.", len(existing))
 
-	for _, tp := range tpSlice.Slice() {
+	for _, tp := range existing {
+		log.Printf("Removing template ID %s", tp.MustId())
 		_, err := templatesService.TemplateService(tp.MustId()).Remove().Send()
 		if err != nil {
 			err = fmt.Errorf("could not remove template '%s'", config.TemplateName)
@@ -53,6 +56,13 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 			state.Put("error", err)
 			return multistep.ActionHalt
 		}
+	}
+
+	if len(existing) > 0 {
+		ui.Message(fmt.Sprintf("Removed %d existing templates. Giving oVirt some time to catch up.", len(existing)))
+
+		// The templates are not removed immediately, so we need to wait a bit.
+		time.Sleep(20 * time.Second)
 	}
 
 	// Remove VM payloads if they were set during the initial run step.
