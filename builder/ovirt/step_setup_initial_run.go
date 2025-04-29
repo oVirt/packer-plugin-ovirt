@@ -106,7 +106,7 @@ func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag)
 		cdromBuilder.File(ovirtsdk4.NewFileBuilder().Id(isoID).MustBuild())
 
 		bootBuilder := ovirtsdk4.NewBootBuilder()
-		bootBuilder.DevicesOfAny(ovirtsdk4.BOOTDEVICE_CDROM)
+		bootBuilder.DevicesOfAny(ovirtsdk4.BOOTDEVICE_HD, ovirtsdk4.BOOTDEVICE_CDROM)
 
 		osBuilder := ovirtsdk4.NewOperatingSystemBuilder()
 		osBuilder.BootBuilder(bootBuilder)
