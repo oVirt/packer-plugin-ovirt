@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/plugin"
 	"github.com/hashicorp/packer-plugin-sdk/version"
-	"go.combell-sre.net/packer/builder-ovirt/builder/ovirt"
+	"github.com/oVirt/ovirt-packer/builder/ovirt"
 )
 
 func main() {
