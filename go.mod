@@ -1,4 +1,4 @@
-module go.combell-sre.net/packer/builder-ovirt
+module github.com/oVirt/ovirt-packer
 
 go 1.24.0
 
