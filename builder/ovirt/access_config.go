@@ -45,7 +45,7 @@ func (c *AccessConfig) Prepare(ctx *interpolate.Context) []error {
 
 	var err error
 	if c.ovirtURL, err = url.Parse(c.OvirtURLRaw); err != nil {
-		errs = append(errs, fmt.Errorf("Could not parse ovirt_url: %s", err))
+		errs = append(errs, fmt.Errorf("could not parse ovirt_url: %s", err))
 	}
 
 	if len(errs) > 0 {

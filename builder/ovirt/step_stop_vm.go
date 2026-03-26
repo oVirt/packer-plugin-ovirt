@@ -49,7 +49,7 @@ func (s *stepStopVM) Run(ctx context.Context, state multistep.StateBag) multiste
 			Shutdown().
 			Send()
 		if err != nil {
-			err = fmt.Errorf("Error shutting down VM: %s", err)
+			err = fmt.Errorf("error shutting down VM: %s", err)
 			state.Put("error", err)
 			return multistep.ActionHalt
 		}
@@ -63,7 +63,7 @@ func (s *stepStopVM) Run(ctx context.Context, state multistep.StateBag) multiste
 		StepState: state,
 	}
 	if _, err := WaitForState(&stateChange); err != nil {
-		err := fmt.Errorf("Error waiting for VM (%s) to stop: %s", vmID, err)
+		err := fmt.Errorf("error waiting for VM (%s) to stop: %s", vmID, err)
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt

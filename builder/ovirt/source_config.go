@@ -57,11 +57,11 @@ func (c *SourceConfig) Prepare(ctx *interpolate.Context) []error {
 		}
 		if c.SourceTemplateID != "" {
 			if _, err := uuid.Parse(c.SourceTemplateID); err != nil {
-				errs = append(errs, fmt.Errorf("Invalid source_template_id: %s", c.SourceTemplateID))
+				errs = append(errs, fmt.Errorf("invalid source_template_id: %s", c.SourceTemplateID))
 			}
 		}
 		if (c.SourceTemplateName != "") && (c.SourceTemplateID != "") {
-			errs = append(errs, errors.New("Conflict: Set either source_template_name or source_template_id"))
+			errs = append(errs, errors.New("conflict: set either source_template_name or source_template_id"))
 		}
 		if (c.SourceTemplateName == "") && (c.SourceTemplateID == "") {
 			errs = append(errs, errors.New("source_template_name or source_template_id must be specified"))
@@ -76,7 +76,7 @@ func (c *SourceConfig) Prepare(ctx *interpolate.Context) []error {
 		}
 
 	default:
-		errs = append(errs, fmt.Errorf("Invalid source_type: %s", c.SourceType))
+		errs = append(errs, fmt.Errorf("invalid source_type: %s", c.SourceType))
 	}
 
 	// Required configurations that will display errors if not set

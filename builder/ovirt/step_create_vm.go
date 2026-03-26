@@ -140,7 +140,7 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 	state.Put("vm_id", vmID)
 	log.Printf("Virtual machine ID: %s", vmID)
 
-	ui.Message(fmt.Sprintf("Waiting for VM to become ready (status down) ..."))
+	ui.Message("Waiting for VM to become ready (status down) ...")
 	stateChange := StateChangeConf{
 		Pending:   []string{"image_locked"},
 		Target:    []string{string(ovirtsdk4.VMSTATUS_DOWN)},

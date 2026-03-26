@@ -104,7 +104,7 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 	state.Put("template_id", template.MustId())
 
 	// Our temporary VM will be locked again while the template is being created.
-	ui.Message(fmt.Sprintf("Waiting for temporary virtual machine to become ready (status down) ..."))
+	ui.Message("Waiting for temporary virtual machine to become ready (status down) ...")
 	stateChange := StateChangeConf{
 		Pending:   []string{string(ovirtsdk4.VMSTATUS_IMAGE_LOCKED)},
 		Target:    []string{string(ovirtsdk4.VMSTATUS_DOWN)},

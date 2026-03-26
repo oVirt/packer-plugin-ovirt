@@ -33,7 +33,7 @@ func (s *stepDetachDisk) Run(ctx context.Context, state multistep.StateBag) mult
 		List().
 		Send()
 	if err != nil {
-		err = fmt.Errorf("Error listing disks of VM: %s", err)
+		err = fmt.Errorf("error listing disks of VM: %s", err)
 		ui.Error(err.Error())
 		state.Put("error", err)
 		return multistep.ActionHalt
@@ -43,7 +43,7 @@ func (s *stepDetachDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	d, _ := conn.FollowLink(das.Slice()[0].MustDisk())
 	disk, ok := d.(*ovirtsdk4.Disk)
 	if !ok {
-		err = fmt.Errorf("Error getting disk of VM: '%s': %s", vmID, err)
+		err = fmt.Errorf("error getting disk of VM: '%s': %s", vmID, err)
 		ui.Error(err.Error())
 		state.Put("error", err)
 		return multistep.ActionHalt
@@ -59,7 +59,7 @@ func (s *stepDetachDisk) Run(ctx context.Context, state multistep.StateBag) mult
 
 	dasResp, err := diskAttachmentService.Get().Send()
 	if err != nil {
-		err = fmt.Errorf("Error getting disk attachment '%s': %s", diskID, err)
+		err = fmt.Errorf("error getting disk attachment '%s': %s", diskID, err)
 		ui.Error(err.Error())
 		state.Put("error", err)
 		return multistep.ActionHalt
@@ -74,14 +74,14 @@ func (s *stepDetachDisk) Run(ctx context.Context, state multistep.StateBag) mult
 					MustBuild()).
 			Send()
 		if err != nil {
-			err = fmt.Errorf("Failed to deactivate disk attachment '%s': %s", diskID, err)
+			err = fmt.Errorf("failed to deactivate disk attachment '%s': %s", diskID, err)
 			ui.Error(err.Error())
 			state.Put("error", err)
 			return multistep.ActionHalt
 		}
 	}
 
-	ui.Message(fmt.Sprintf("Waiting for disk attachment to become inactive ..."))
+	ui.Message("Waiting for disk attachment to become inactive ...")
 	stateChange := StateChangeConf{
 		Pending:   []string{"active"},
 		Target:    []string{"inactive"},
@@ -90,7 +90,7 @@ func (s *stepDetachDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	}
 	_, err = WaitForState(&stateChange)
 	if err != nil {
-		err := fmt.Errorf("Failed waiting for disk attachment (%s) to become inactive: %s", diskID, err)
+		err := fmt.Errorf("failed waiting for disk attachment (%s) to become inactive: %s", diskID, err)
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt
@@ -98,7 +98,7 @@ func (s *stepDetachDisk) Run(ctx context.Context, state multistep.StateBag) mult
 
 	_, err = diskAttachmentService.Remove().Send()
 	if err != nil {
-		err := fmt.Errorf("Failed to detach disk (%s) from VM: %s", diskID, err)
+		err := fmt.Errorf("failed to detach disk (%s) from VM: %s", diskID, err)
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt

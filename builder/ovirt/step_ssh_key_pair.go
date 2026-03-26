@@ -36,7 +36,7 @@ func (s *stepKeyPair) Run(ctx context.Context, state multistep.StateBag) multist
 
 		key, err := ssh.ParsePrivateKey(privateKeyBytes)
 		if err != nil {
-			err = fmt.Errorf("Error parsing 'ssh_private_key_file': %s", err)
+			err = fmt.Errorf("error parsing 'ssh_private_key_file': %s", err)
 			ui.Error(err.Error())
 			state.Put("error", err)
 			return multistep.ActionHalt
@@ -52,7 +52,7 @@ func (s *stepKeyPair) Run(ctx context.Context, state multistep.StateBag) multist
 
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		err = fmt.Errorf("Error creating temporary SSH key: %s", err)
+		err = fmt.Errorf("error creating temporary SSH key: %s", err)
 		ui.Error(err.Error())
 		state.Put("error", err)
 		return multistep.ActionHalt
@@ -68,7 +68,7 @@ func (s *stepKeyPair) Run(ctx context.Context, state multistep.StateBag) multist
 	// Marshal the public key into SSH compatible format
 	pub, err := ssh.NewPublicKey(&priv.PublicKey)
 	if err != nil {
-		err = fmt.Errorf("Error marshaling temporary SSH public key: %s", err)
+		err = fmt.Errorf("error marshaling temporary SSH public key: %s", err)
 		ui.Error(err.Error())
 		state.Put("error", err)
 		return multistep.ActionHalt
@@ -82,16 +82,18 @@ func (s *stepKeyPair) Run(ctx context.Context, state multistep.StateBag) multist
 		ui.Message(fmt.Sprintf("Saving key for debug purposes: %s", s.DebugKeyPath))
 		f, err := os.Create(s.DebugKeyPath)
 		if err != nil {
-			err = fmt.Errorf("Error saving debug key: %s", err)
+			err = fmt.Errorf("error saving debug key: %s", err)
 			ui.Error(err.Error())
 			state.Put("error", err)
 			return multistep.ActionHalt
 		}
-		defer f.Close()
+		defer func() {
+			_ = f.Close()
+		}()
 
 		// Write the key out
 		if _, err := f.Write(pem.EncodeToMemory(&privBlk)); err != nil {
-			err = fmt.Errorf("Error saving debug key: %s", err)
+			err = fmt.Errorf("error saving debug key: %s", err)
 			ui.Error(err.Error())
 			state.Put("error", err)
 			return multistep.ActionHalt
@@ -100,7 +102,7 @@ func (s *stepKeyPair) Run(ctx context.Context, state multistep.StateBag) multist
 		// Chmod it so that it's SSH ready
 		if runtime.GOOS != "windows" {
 			if err := f.Chmod(0o600); err != nil {
-				err = fmt.Errorf("Error setting permissions of debug key: %s", err)
+				err = fmt.Errorf("error setting permissions of debug key: %s", err)
 				ui.Error(err.Error())
 				state.Put("error", err)
 				return multistep.ActionHalt

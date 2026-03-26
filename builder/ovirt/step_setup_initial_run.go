@@ -222,7 +222,7 @@ func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag)
 		return multistep.ActionHalt
 	}
 
-	ui.Message(fmt.Sprintf("Waiting for VM to become ready ..."))
+	ui.Message("Waiting for VM to become ready ...")
 	stateChange := StateChangeConf{
 		Pending:   []string{string(ovirtsdk4.VMSTATUS_WAIT_FOR_LAUNCH), string(ovirtsdk4.VMSTATUS_POWERING_UP)},
 		Target:    []string{string(ovirtsdk4.VMSTATUS_UP)},
@@ -239,7 +239,7 @@ func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag)
 	}
 
 	if _, err := WaitForState(&stateChange); err != nil {
-		err := fmt.Errorf("Failed waiting for VM (%s) to become up: %s", vmID, err)
+		err := fmt.Errorf("failed waiting for VM (%s) to become up: %s", vmID, err)
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt
@@ -270,7 +270,7 @@ func (s *stepSetupInitialRun) Cleanup(state multistep.StateBag) {
 		ui.Error(err.Error())
 	}
 
-	ui.Message(fmt.Sprintf("Waiting for VM to shut down ..."))
+	ui.Message("Waiting for VM to shut down ...")
 	stateChange := StateChangeConf{
 		Pending:   []string{string(ovirtsdk4.VMSTATUS_UP), string(ovirtsdk4.VMSTATUS_POWERING_DOWN)},
 		Target:    []string{string(ovirtsdk4.VMSTATUS_DOWN)},
@@ -278,7 +278,7 @@ func (s *stepSetupInitialRun) Cleanup(state multistep.StateBag) {
 		StepState: state,
 	}
 	if _, err := WaitForState(&stateChange); err != nil {
-		err := fmt.Errorf("Failed waiting for VM (%s) to shut down: %s", vmID, err)
+		err := fmt.Errorf("failed waiting for VM (%s) to shut down: %s", vmID, err)
 		ui.Error(err.Error())
 	}
 }

@@ -33,7 +33,7 @@ func (s *stepUpdateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 		List().
 		Send()
 	if err != nil {
-		err = fmt.Errorf("Error listing disks of VM: %s", err)
+		err = fmt.Errorf("error listing disks of VM: %s", err)
 		ui.Error(err.Error())
 		state.Put("error", err)
 		return multistep.ActionHalt
@@ -43,7 +43,7 @@ func (s *stepUpdateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	d, _ := conn.FollowLink(das.Slice()[0].MustDisk())
 	disk, ok := d.(*ovirtsdk4.Disk)
 	if !ok {
-		err = fmt.Errorf("Error getting disk of VM: '%s': %s", vmID, err)
+		err = fmt.Errorf("error getting disk of VM: '%s': %s", vmID, err)
 		ui.Error(err.Error())
 		state.Put("error", err)
 		return multistep.ActionHalt
@@ -59,7 +59,7 @@ func (s *stepUpdateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 
 	_, err = diskAttachmentService.Get().Send()
 	if err != nil {
-		err = fmt.Errorf("Error getting disk attachment '%s': %s", diskID, err)
+		err = fmt.Errorf("error getting disk attachment '%s': %s", diskID, err)
 		ui.Error(err.Error())
 		state.Put("error", err)
 		return multistep.ActionHalt
@@ -84,7 +84,7 @@ func (s *stepUpdateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 			MustBuild()).
 		Send()
 	if err != nil {
-		err = fmt.Errorf("Failed to update disk properties: %s", err)
+		err = fmt.Errorf("failed to update disk properties: %s", err)
 		ui.Error(err.Error())
 		state.Put("error", err)
 		return multistep.ActionHalt
@@ -99,7 +99,7 @@ func (s *stepUpdateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	}
 	_, err = WaitForState(&stateChange)
 	if err != nil {
-		err := fmt.Errorf("Failed waiting for disk attachment (%s) to become inactive: %s", diskID, err)
+		err := fmt.Errorf("failed waiting for disk attachment (%s) to become inactive: %s", diskID, err)
 		ui.Error(err.Error())
 		state.Put("error", err)
 		return multistep.ActionHalt
