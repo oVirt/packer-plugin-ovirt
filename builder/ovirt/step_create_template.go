@@ -32,7 +32,7 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 
 	// Delete template with the same name if it already exists.
 	// We've already provisioned the new VM so we're fairly sure creating the new template will work.
-	ui.Message(fmt.Sprintf("Checking for existing template %s ...", config.TemplateName))
+	ui.Say(fmt.Sprintf("Checking for existing template %s ...", config.TemplateName))
 	templatesService := conn.SystemService().TemplatesService()
 	log.Printf("Searching for existing template '%s'", config.TemplateName)
 	tpsResp, err := templatesService.List().
@@ -59,7 +59,7 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 	}
 
 	if len(existing) > 0 {
-		ui.Message(fmt.Sprintf("Removed %d existing templates. Giving oVirt some time to catch up.", len(existing)))
+		ui.Say(fmt.Sprintf("Removed %d existing templates. Giving oVirt some time to catch up.", len(existing)))
 
 		// The templates are not removed immediately, so we need to wait a bit.
 		time.Sleep(20 * time.Second)
@@ -91,7 +91,7 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 		return multistep.ActionHalt
 	}
 
-	ui.Message(fmt.Sprintf("Creating template %s ...", config.TemplateName))
+	ui.Say(fmt.Sprintf("Creating template %s ...", config.TemplateName))
 	templateResp, err := conn.SystemService().TemplatesService().Add().Template(template).Send()
 	if err != nil {
 		err = fmt.Errorf("could not create template from VM: %w", err)
@@ -104,7 +104,7 @@ func (s *stepCreateTemplate) Run(ctx context.Context, state multistep.StateBag) 
 	state.Put("template_id", template.MustId())
 
 	// Our temporary VM will be locked again while the template is being created.
-	ui.Message("Waiting for temporary virtual machine to become ready (status down) ...")
+	ui.Say("Waiting for temporary virtual machine to become ready (status down) ...")
 	stateChange := StateChangeConf{
 		Pending:   []string{string(ovirtsdk4.VMSTATUS_IMAGE_LOCKED)},
 		Target:    []string{string(ovirtsdk4.VMSTATUS_DOWN)},

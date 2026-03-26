@@ -26,7 +26,7 @@ func (s *stepStopVM) Run(ctx context.Context, state multistep.StateBag) multiste
 
 	ui.Say(fmt.Sprintf("Stopping VM: %s ...", vmID))
 	if len(config.ShutdownCommand) > 0 {
-		ui.Message(fmt.Sprintf("Sending shutdown command to VM: %s ...", vmID))
+		ui.Say(fmt.Sprintf("Sending shutdown command to VM: %s ...", vmID))
 
 		comm, _ := state.Get("communicator").(packer.Communicator)
 
@@ -55,7 +55,7 @@ func (s *stepStopVM) Run(ctx context.Context, state multistep.StateBag) multiste
 		}
 	}
 
-	ui.Message(fmt.Sprintf("Waiting for VM to stop: %s ...", vmID))
+	ui.Say(fmt.Sprintf("Waiting for VM to stop: %s ...", vmID))
 	stateChange := StateChangeConf{
 		Pending:   []string{string(ovirtsdk4.VMSTATUS_UP), string(ovirtsdk4.VMSTATUS_POWERING_DOWN)},
 		Target:    []string{string(ovirtsdk4.VMSTATUS_DOWN)},

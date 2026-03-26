@@ -90,7 +90,7 @@ func (s *stepUpdateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 		return multistep.ActionHalt
 	}
 
-	ui.Message(fmt.Sprintf("Waiting for disk '%s' reaching status OK...", diskID))
+	ui.Say(fmt.Sprintf("Waiting for disk '%s' reaching status OK...", diskID))
 	stateChange := StateChangeConf{
 		Pending:   []string{string(ovirtsdk4.DISKSTATUS_LOCKED)},
 		Target:    []string{string(ovirtsdk4.DISKSTATUS_OK)},
