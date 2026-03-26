@@ -12,7 +12,7 @@ import (
 func main() {
 	pps := plugin.NewSet()
 	pps.RegisterBuilder("ovirt", new(ovirt.Builder))
-	pps.SetVersion(version.InitializePluginVersion("v0.1.0", "dev"))
+	pps.SetVersion(version.NewPluginVersion("v0.1.0", "dev", ""))
 	err := pps.Run()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
