@@ -79,7 +79,7 @@ func (s *stepKeyPair) Run(ctx context.Context, state multistep.StateBag) multist
 	// If we're in debug mode, output the private key to the working
 	// directory
 	if s.Debug {
-		ui.Message(fmt.Sprintf("Saving key for debug purposes: %s", s.DebugKeyPath))
+		ui.Say(fmt.Sprintf("Saving key for debug purposes: %s", s.DebugKeyPath))
 		f, err := os.Create(s.DebugKeyPath)
 		if err != nil {
 			err = fmt.Errorf("error saving debug key: %s", err)

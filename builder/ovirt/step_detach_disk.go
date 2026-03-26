@@ -66,7 +66,7 @@ func (s *stepDetachDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	}
 
 	if dasResp.MustAttachment().MustActive() {
-		ui.Message(fmt.Sprintf("Deactivating disk attachment: %s ...", diskID))
+		ui.Say(fmt.Sprintf("Deactivating disk attachment: %s ...", diskID))
 		_, err := diskAttachmentService.Update().
 			DiskAttachment(
 				ovirtsdk4.NewDiskAttachmentBuilder().
@@ -81,7 +81,7 @@ func (s *stepDetachDisk) Run(ctx context.Context, state multistep.StateBag) mult
 		}
 	}
 
-	ui.Message("Waiting for disk attachment to become inactive ...")
+	ui.Say("Waiting for disk attachment to become inactive ...")
 	stateChange := StateChangeConf{
 		Pending:   []string{"active"},
 		Target:    []string{"inactive"},
