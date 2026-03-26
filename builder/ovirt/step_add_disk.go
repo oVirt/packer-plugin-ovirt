@@ -102,7 +102,7 @@ func (s *stepAddDisk) Run(ctx context.Context, state multistep.StateBag) multist
 		return multistep.ActionHalt
 	}
 
-	ui.Message(fmt.Sprintf("Waiting for disk attachment to become active ..."))
+	ui.Message("Waiting for disk attachment to become active ...")
 	stateChange = StateChangeConf{
 		Pending:   []string{"inactive"},
 		Target:    []string{"active"},

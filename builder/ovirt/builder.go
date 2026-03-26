@@ -23,8 +23,6 @@ type Builder struct {
 	runner multistep.Runner
 }
 
-var pluginVersion = "0.0.1"
-
 func (b *Builder) ConfigSpec() hcldec.ObjectSpec { return b.config.FlatMapstructure().HCL2Spec() }
 
 // Prepare processes the build configuration parameters.
@@ -49,7 +47,7 @@ func ovirtConnect(config *Config, state multistep.StateBag) (*ovirtsdk4.Connecti
 
 			// A this point it looks like the existing connection is not usable,
 			// so we need to close it and create a new one.
-			conn.Close()
+			_ = conn.Close()
 		}
 	}
 
@@ -83,7 +81,9 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	log.Printf("Successfully connected to %s\n", b.config.ovirtURL.String())
 
@@ -92,7 +92,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		List().
 		Send()
 	if err != nil {
-		return nil, fmt.Errorf("Error getting cluster list: %w", err)
+		return nil, fmt.Errorf("error getting cluster list: %w", err)
 	}
 
 	var clusterID string
@@ -108,7 +108,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		}
 	}
 	if clusterID == "" {
-		return nil, fmt.Errorf("Could not find cluster '%s'", b.config.Cluster)
+		return nil, fmt.Errorf("could not find cluster '%s'", b.config.Cluster)
 	}
 	state.Put("cluster_id", clusterID)
 

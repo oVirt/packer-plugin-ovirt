@@ -105,7 +105,9 @@ func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 		state.Put("error", err.Error())
 		return multistep.ActionHalt
 	}
-	defer vncConn.Close()
+	defer func() {
+		_ = vncConn.Close()
+	}()
 
 	ticketResp, err := vmService.Ticket().Send()
 	if err != nil {
@@ -126,7 +128,9 @@ func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 		state.Put("error", err.Error())
 		return multistep.ActionHalt
 	}
-	defer vncClient.Close()
+	defer func() {
+		_ = vncClient.Close()
+	}()
 
 	a := &adaptor{c: vncClient}
 

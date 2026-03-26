@@ -118,7 +118,7 @@ func NewConfig(raws ...any) (*Config, []string, error) {
 			ovirtsdk4.BIOSTYPE_Q35_SECURE_BOOT,
 		}
 		if !slices.Contains(options, ovirtsdk4.BiosType(c.BiosType)) {
-			errs = packer.MultiErrorAppend(errs, fmt.Errorf("Invalid bios_type: %s", c.BiosType))
+			errs = packer.MultiErrorAppend(errs, fmt.Errorf("invalid bios_type: %s", c.BiosType))
 		}
 	}
 
