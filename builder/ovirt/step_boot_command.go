@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alexsnet/go-vnc"
-	"github.com/alexsnet/go-vnc/keys"
 	"github.com/hashicorp/packer-plugin-sdk/bootcommand"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
+	"github.com/kward/go-vnc"
+	"github.com/kward/go-vnc/keys"
 )
 
 type adaptor struct {
