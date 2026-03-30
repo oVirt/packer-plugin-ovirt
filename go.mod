@@ -1,4 +1,4 @@
-module github.com/oVirt/ovirt-packer
+module github.com/oVirt/packer-plugin-ovirt
 
 go 1.25.8
 
