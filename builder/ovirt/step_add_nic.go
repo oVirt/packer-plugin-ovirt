@@ -31,20 +31,23 @@ func (s *stepAddNic) findVnicProfile(conn *ovirtsdk4.Connection, networkID strin
 	return profiles[0].MustId(), nil
 }
 
-func (s *stepAddNic) findNetwork(conn *ovirtsdk4.Connection, name string) (string, error) {
-	log.Printf("Searching network '%s'", name)
-	service := conn.SystemService().NetworksService()
-	resp, err := service.List().Search(fmt.Sprintf("name=%s", name)).Max(1).Send()
+// findNetwork looks the network up among those attached to the build
+// cluster. Network names are only unique within a data center, and every
+// data center has its own ovirtmgmt.
+func (s *stepAddNic) findNetwork(conn *ovirtsdk4.Connection, clusterID string, name string) (string, error) {
+	log.Printf("Searching network '%s' in cluster %s", name, clusterID)
+	service := conn.SystemService().ClustersService().ClusterService(clusterID).NetworksService()
+	resp, err := service.List().Send()
 	if err != nil {
-		return "", fmt.Errorf("error while searching for network '%s': %s", name, err)
+		return "", fmt.Errorf("error while listing the networks of the cluster: %s", err)
 	}
-	networks := resp.MustNetworks().Slice()
-
-	if len(networks) == 0 {
-		return "", fmt.Errorf("could not find network '%s'", name)
+	for _, network := range resp.MustNetworks().Slice() {
+		if network.MustName() == name {
+			return network.MustId(), nil
+		}
 	}
 
-	return networks[0].MustId(), nil
+	return "", fmt.Errorf("could not find network '%s' in the cluster", name)
 }
 
 func (s *stepAddNic) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
@@ -93,7 +96,7 @@ func (s *stepAddNic) Run(ctx context.Context, state multistep.StateBag) multiste
 
 	ui.Say("Configuring new NIC...")
 
-	networkID, err := s.findNetwork(conn, config.Network)
+	networkID, err := s.findNetwork(conn, state.Get("cluster_id").(string), config.Network)
 	if err != nil {
 		ui.Error(err.Error())
 		state.Put("error", err)
