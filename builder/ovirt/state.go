@@ -30,6 +30,13 @@ type StateChangeConf struct {
 	Target    []string
 }
 
+// pollInterval is how often WaitForState refreshes the watched object.
+var pollInterval = 2 * time.Second
+
+// notFoundRetries is how many refreshes in a row may report the object as
+// not found (an empty state) before WaitForState gives up.
+const notFoundRetries = 10
+
 // VMStateRefreshFunc returns a StateRefreshFunc that is used to watch
 // a oVirt virtual machine.
 func VMStateRefreshFunc(
@@ -114,6 +121,8 @@ func DiskAttachmentStateRefreshFunc(
 func WaitForState(conf *StateChangeConf) (i any, err error) {
 	log.Printf("Waiting for state to become: %s", conf.Target)
 
+	notFound := 0
+
 	for {
 		var currentState string
 		i, currentState, err := conf.Refresh()
@@ -131,12 +140,21 @@ func WaitForState(conf *StateChangeConf) (i any, err error) {
 			}
 		}
 
-		found := slices.Contains(conf.Pending, currentState)
-		if !found {
-			return nil, fmt.Errorf("unexpected state '%s', wanted target '%s'", currentState, conf.Target)
+		if currentState == "" {
+			// The refresh functions report a NotFoundError as an empty
+			// state; oVirt can briefly not see a newly created object.
+			notFound++
+			if notFound > notFoundRetries {
+				return nil, fmt.Errorf("object not found after %d attempts, wanted target '%s'", notFound, conf.Target)
+			}
+		} else {
+			notFound = 0
+			if !slices.Contains(conf.Pending, currentState) {
+				return nil, fmt.Errorf("unexpected state '%s', wanted target '%s'", currentState, conf.Target)
+			}
 		}
 
 		log.Printf("Waiting for state to become %s, currently %s", conf.Target, currentState)
-		time.Sleep(2 * time.Second)
+		time.Sleep(pollInterval)
 	}
 }
