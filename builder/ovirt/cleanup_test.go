@@ -1,8 +1,13 @@
 package ovirt
 
 import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
@@ -66,5 +71,58 @@ func TestCleanup_ReconnectFails(t *testing.T) {
 			}()
 			step.Cleanup(state)
 		})
+	}
+}
+
+// TestStepSetupInitialRunCleanup_ShutdownTimeout checks that the cleanup
+// stops waiting after shutdown_timeout when the VM never goes down.
+func TestStepSetupInitialRunCleanup_ShutdownTimeout(t *testing.T) {
+	fastPoll(t)
+	srv := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		xml := func(body string) {
+			w.Header().Set("Content-Type", "application/xml")
+			_, _ = fmt.Fprint(w, body)
+		}
+		switch path := strings.TrimPrefix(r.URL.Path, "/ovirt-engine/api"); {
+		case r.URL.Path == "/ovirt-engine/sso/oauth/token":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = fmt.Fprint(w, `{"access_token":"token"}`)
+		case path == "":
+			xml(`<api></api>`)
+		case path == "/vms/vm1/stop" && r.Method == http.MethodPost:
+			xml(`<action></action>`)
+		case path == "/vms/vm1" && r.Method == http.MethodGet:
+			xml(`<vm id="vm1"><status>powering_down</status></vm>`)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer srv.Close()
+
+	u, err := url.Parse(srv.URL + "/ovirt-engine/api")
+	if err != nil {
+		t.Fatal(err)
+	}
+	config := &Config{}
+	config.ovirtURL = u
+	config.Username = "admin@internal"
+	config.Password = "password"
+	config.SkipCertValidation = true
+	config.ShutdownTimeout = 50 * time.Millisecond
+
+	state := new(multistep.BasicStateBag)
+	state.Put("config", config)
+	state.Put("ui", packer.TestUi(t))
+	state.Put("vm_id", "vm1")
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		(&stepSetupInitialRun{}).Cleanup(state)
+	}()
+	select {
+	case <-done:
+	case <-time.After(10 * time.Second):
+		t.Fatal("Cleanup kept waiting past shutdown_timeout")
 	}
 }

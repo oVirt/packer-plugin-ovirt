@@ -60,3 +60,30 @@ func TestWaitForState_Timeout(t *testing.T) {
 		t.Fatalf("expected a timeout error, got %v", err)
 	}
 }
+
+func TestConfig_ShutdownTimeout(t *testing.T) {
+	raw := map[string]any{
+		"ovirt_url":            "https://ovirt.example.com/ovirt-engine/api",
+		"username":             "admin@internal",
+		"password":             "password",
+		"source_template_name": "template",
+		"communicator":         "none",
+	}
+
+	c, _, err := NewConfig(raw)
+	if err != nil {
+		t.Fatalf("NewConfig: %s", err)
+	}
+	if c.ShutdownTimeout != 5*time.Minute {
+		t.Fatalf("expected a default shutdown_timeout of 5m, got %s", c.ShutdownTimeout)
+	}
+
+	raw["shutdown_timeout"] = "30m"
+	c, _, err = NewConfig(raw)
+	if err != nil {
+		t.Fatalf("NewConfig: %s", err)
+	}
+	if c.ShutdownTimeout != 30*time.Minute {
+		t.Fatalf("expected shutdown_timeout 30m, got %s", c.ShutdownTimeout)
+	}
+}

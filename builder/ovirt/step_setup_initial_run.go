@@ -275,6 +275,7 @@ func (s *stepSetupInitialRun) Cleanup(state multistep.StateBag) {
 		Target:    []string{string(ovirtsdk4.VMSTATUS_DOWN)},
 		Refresh:   VMStateRefreshFunc(conn, vmID),
 		StepState: state,
+		Timeout:   config.ShutdownTimeout,
 	}
 	if _, err := WaitForState(&stateChange); err != nil {
 		err := fmt.Errorf("failed waiting for VM (%s) to shut down: %s", vmID, err)
