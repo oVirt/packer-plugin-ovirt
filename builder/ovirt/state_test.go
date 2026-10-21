@@ -47,3 +47,16 @@ func TestWaitForState_NotFoundGivesUp(t *testing.T) {
 		t.Fatalf("expected a not found error, got %v", err)
 	}
 }
+
+func TestWaitForState_Timeout(t *testing.T) {
+	fastPoll(t)
+	_, err := WaitForState(&StateChangeConf{
+		Pending: []string{"powering_down"},
+		Target:  []string{"down"},
+		Refresh: refreshSequence("powering_down"),
+		Timeout: 50 * time.Millisecond,
+	})
+	if err == nil || !strings.Contains(err.Error(), "timeout") {
+		t.Fatalf("expected a timeout error, got %v", err)
+	}
+}

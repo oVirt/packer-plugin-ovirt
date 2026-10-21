@@ -28,6 +28,8 @@ type StateChangeConf struct {
 	Refresh   StateRefreshFunc
 	StepState multistep.StateBag
 	Target    []string
+	// Timeout is how long to wait for a target state. Zero means no limit.
+	Timeout time.Duration
 }
 
 // pollInterval is how often WaitForState refreshes the watched object.
@@ -121,6 +123,10 @@ func DiskAttachmentStateRefreshFunc(
 func WaitForState(conf *StateChangeConf) (i any, err error) {
 	log.Printf("Waiting for state to become: %s", conf.Target)
 
+	var deadline time.Time
+	if conf.Timeout > 0 {
+		deadline = time.Now().Add(conf.Timeout)
+	}
 	notFound := 0
 
 	for {
@@ -152,6 +158,10 @@ func WaitForState(conf *StateChangeConf) (i any, err error) {
 			if !slices.Contains(conf.Pending, currentState) {
 				return nil, fmt.Errorf("unexpected state '%s', wanted target '%s'", currentState, conf.Target)
 			}
+		}
+
+		if !deadline.IsZero() && time.Now().After(deadline) {
+			return nil, fmt.Errorf("timeout after %s, wanted target '%s', currently '%s'", conf.Timeout, conf.Target, currentState)
 		}
 
 		log.Printf("Waiting for state to become %s, currently %s", conf.Target, currentState)
