@@ -70,7 +70,9 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 		vmBuilder.BiosBuilder(ovirtsdk4.NewBiosBuilder().Type(ovirtsdk4.BiosType(config.BiosType)))
 	}
 
-	vmBuilder.TpmEnabled(config.Tpm)
+	if config.Tpm != nil {
+		vmBuilder.TpmEnabled(*config.Tpm)
+	}
 
 	if len(config.OperatingSystem) > 0 {
 		osService := conn.SystemService().OperatingSystemsService()
@@ -104,11 +106,20 @@ func (s *stepCreateVM) Run(ctx context.Context, state multistep.StateBag) multis
 		vmBuilder.OsBuilder(osBuilder)
 	}
 
-	cpuBuilder := ovirtsdk4.NewCpuBuilder()
-	cpuBuilder.TopologyBuilder(ovirtsdk4.NewCpuTopologyBuilder().Cores(int64(config.Cores)).Sockets(int64(config.Sockets)))
-	vmBuilder.CpuBuilder(cpuBuilder)
+	if config.Cores != 0 || config.Sockets != 0 {
+		topologyBuilder := ovirtsdk4.NewCpuTopologyBuilder()
+		if config.Cores != 0 {
+			topologyBuilder.Cores(int64(config.Cores))
+		}
+		if config.Sockets != 0 {
+			topologyBuilder.Sockets(int64(config.Sockets))
+		}
+		vmBuilder.CpuBuilder(ovirtsdk4.NewCpuBuilder().TopologyBuilder(topologyBuilder))
+	}
 
-	vmBuilder.Memory(int64(config.Memory) * 1024 * 1024)
+	if config.Memory != 0 {
+		vmBuilder.Memory(int64(config.Memory) * 1024 * 1024)
+	}
 
 	if templateID == BlankTemplateUUID {
 		vmBuilder.Type(ovirtsdk4.VMTYPE_SERVER)
