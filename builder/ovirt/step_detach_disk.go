@@ -38,12 +38,24 @@ func (s *stepDetachDisk) Run(ctx context.Context, state multistep.StateBag) mult
 		state.Put("error", err)
 		return multistep.ActionHalt
 	}
-	das := resp.MustAttachments()
+	das := resp.MustAttachments().Slice()
+	if len(das) == 0 {
+		err = fmt.Errorf("VM '%s' has no disks", vmID)
+		ui.Error(err.Error())
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
 
-	d, _ := conn.FollowLink(das.Slice()[0].MustDisk())
+	d, err := conn.FollowLink(das[0].MustDisk())
+	if err != nil {
+		err = fmt.Errorf("error getting disk of VM '%s': %w", vmID, err)
+		ui.Error(err.Error())
+		state.Put("error", err)
+		return multistep.ActionHalt
+	}
 	disk, ok := d.(*ovirtsdk4.Disk)
 	if !ok {
-		err = fmt.Errorf("error getting disk of VM: '%s': %s", vmID, err)
+		err = fmt.Errorf("error getting disk of VM '%s': unexpected type %T", vmID, d)
 		ui.Error(err.Error())
 		state.Put("error", err)
 		return multistep.ActionHalt
