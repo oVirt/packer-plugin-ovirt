@@ -86,7 +86,11 @@ func NewConfig(raws ...any) (*Config, []string, error) {
 		c.VMName = fmt.Sprintf("packer-%s", uuid.TimeOrderedUUID())
 	}
 	if c.DiskName == "" {
+		// Name the disk after the template it ends up in, if there is one.
 		c.DiskName = c.VMName
+		if c.TemplateName != "" {
+			c.DiskName = c.TemplateName
+		}
 	}
 	if c.Netmask == "" {
 		c.Netmask = "255.255.255.0"

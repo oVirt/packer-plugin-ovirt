@@ -68,11 +68,7 @@ func (s *stepUpdateDisk) Run(ctx context.Context, state multistep.StateBag) mult
 	diskBuilder := ovirtsdk4.NewDiskBuilder()
 	diskBuilder.Description(config.DiskDescription)
 
-	if len(config.DiskName) != 0 {
-		diskBuilder.Name(config.DiskName)
-	} else if len(config.TemplateName) != 0 {
-		diskBuilder.Name(config.TemplateName)
-	}
+	diskBuilder.Name(config.DiskName)
 	disk = diskBuilder.MustBuild()
 
 	log.Printf("Disk name: %s", disk.MustName())

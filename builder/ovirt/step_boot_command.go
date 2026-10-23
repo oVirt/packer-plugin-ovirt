@@ -74,7 +74,6 @@ func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 		case <-time.After(config.BootCommand.VNCConfig.BootWait):
 			break
 		case <-ctx.Done():
-			log.Println("fucked")
 			return multistep.ActionHalt
 		}
 	}
@@ -118,7 +117,7 @@ func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 	}
 	ticket := ticketResp.MustTicket()
 
-	log.Printf("VNC ticket %s (%d)", ticket.MustValue(), ticket.MustExpiry())
+	log.Printf("Got a VNC ticket (valid for %d seconds)", ticket.MustExpiry())
 
 	vncConfig := vnc.NewClientConfig(ticket.MustValue())
 	vncClient, err := vnc.Connect(ctx, vncConn, vncConfig)

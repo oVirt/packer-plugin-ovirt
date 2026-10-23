@@ -169,7 +169,8 @@ func (s *stepCreateVM) Cleanup(state multistep.StateBag) {
 
 	conn, err := ovirtConnect(config, state)
 	if err != nil {
-		ui.Error(err.Error())
+		ui.Error(fmt.Sprintf("Error deleting VM '%s', may still be around: %s", vmID, err))
+		return
 	}
 
 	ui.Say(fmt.Sprintf("Deleting virtual machine: %s ...", vmID))
