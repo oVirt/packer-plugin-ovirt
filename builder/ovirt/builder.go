@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"runtime/debug"
 	"time"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
@@ -68,9 +69,7 @@ func ovirtConnect(config *Config, state multistep.StateBag) (*ovirtsdk4.Connecti
 }
 
 // Run is the main function executing the image build.
-func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
-	var err error
-
+func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (artifact packer.Artifact, err error) {
 	// Set up the state
 	state := new(multistep.BasicStateBag)
 	state.Put("config", &b.config)
@@ -152,10 +151,13 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		steps = append(steps, &stepDetachDisk{})
 	}
 
-	// To use `Must` methods, you should recover it if panics
+	// The SDK's Must* getters panic on missing fields. Turn a panic into a
+	// failed build instead of letting Run return nil, nil.
 	defer func() {
-		if err := recover(); err != nil {
-			fmt.Printf("oVirt: Panics occurs, try the non-Must methods to find the reason (%s)", err)
+		if r := recover(); r != nil {
+			log.Printf("oVirt: panic during build: %v\n%s", r, debug.Stack())
+			artifact = nil
+			err = fmt.Errorf("oVirt: unexpected panic during build: %v", r)
 		}
 	}()
 
