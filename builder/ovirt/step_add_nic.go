@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
@@ -20,18 +19,12 @@ func (s *stepAddNic) findVnicProfile(conn *ovirtsdk4.Connection, networkID strin
 	if err != nil {
 		return "", fmt.Errorf("error while searching for VNIC profile '%s': %s", name, err)
 	}
-	profiles := resp.MustProfiles().Slice()
-	if len(profiles) == 0 {
-		return "", fmt.Errorf("could not find VNIC profile '%s'", name)
-	}
-	names := make([]string, 0, len(profiles))
-	for i := range profiles {
-		if profiles[i].MustName() == name {
-			return profiles[i].MustId(), nil
+	for _, profile := range resp.MustProfiles().Slice() {
+		if profile.MustName() == name {
+			return profile.MustId(), nil
 		}
-		names = append(names, profiles[i].MustName())
 	}
-	return "", fmt.Errorf("could not find VNIC profile '%s' (available: %s)", name, strings.Join(names, ", "))
+	return "", fmt.Errorf("could not find VNIC profile '%s'", name)
 }
 
 // findNetwork looks the network up among those attached to the build
