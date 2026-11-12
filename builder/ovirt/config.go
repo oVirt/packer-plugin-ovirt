@@ -136,6 +136,7 @@ func NewConfig(raws ...any) (*Config, []string, error) {
 	}
 
 	errs = packer.MultiErrorAppend(errs, c.Comm.Prepare(&c.ctx)...)
+	errs = packer.MultiErrorAppend(errs, c.BootCommand.VNCConfig.Prepare(&c.ctx)...)
 
 	if errs != nil && len(errs.Errors) > 0 {
 		return nil, nil, errs

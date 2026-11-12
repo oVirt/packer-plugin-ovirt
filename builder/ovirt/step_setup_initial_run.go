@@ -230,10 +230,11 @@ func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag)
 
 	// oVirt does not know when the VM is ready when there's no guest agent, it defaults to 60 seconds.
 	// This is too long for the Debian Installer, it goes into Speech Synthesis mode automatically.
-	// We fix this by continuing to the next Packer step immediately after the VM goes to powering_up state.
-	if config.BootCommand.VNCConfig.BootWait != 0 {
+	// When a boot command will be typed, continue to the next Packer step as soon as the VM is
+	// powering up (or already up, if the first poll comes late); boot_wait then counts from there.
+	if config.SourceType == ISOSource && len(config.BootCommand.VNCConfig.BootCommand) > 0 {
 		stateChange.Pending = []string{string(ovirtsdk4.VMSTATUS_WAIT_FOR_LAUNCH)}
-		stateChange.Target = []string{string(ovirtsdk4.VMSTATUS_POWERING_UP)}
+		stateChange.Target = []string{string(ovirtsdk4.VMSTATUS_POWERING_UP), string(ovirtsdk4.VMSTATUS_UP)}
 	}
 
 	if _, err := WaitForState(&stateChange); err != nil {
