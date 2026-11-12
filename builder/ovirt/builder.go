@@ -102,6 +102,14 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 				if clusterName == b.config.Cluster {
 					clusterID = cluster.MustId()
 					log.Printf("Using cluster id: %s", clusterID)
+					// The VNC client used for boot_command can't do VeNCrypt,
+					// which is all an encrypted console offers. Fail before
+					// creating anything instead of in the middle of the build.
+					if enc, ok := cluster.VncEncryption(); ok && enc &&
+						b.config.SourceType == ISOSource && len(b.config.BootCommand.VNCConfig.BootCommand) > 0 {
+						return nil, fmt.Errorf("cluster '%s' has VNC encryption enabled, which boot_command does not support: "+
+							"disable VNC encryption on the cluster or build without boot_command", clusterName)
+					}
 					break
 				}
 			}
