@@ -55,7 +55,7 @@ func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 	if err != nil {
 		err = fmt.Errorf("could not get VM details: %s", err)
 		ui.Error(err.Error())
-		state.Put("error", err.Error())
+		state.Put("error", err)
 		return multistep.ActionHalt
 	}
 	vm := vmResp.MustVm()
@@ -64,7 +64,7 @@ func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 	if !ok {
 		err = fmt.Errorf("could not get display details for VM %s (not included in vm details)", vmID)
 		ui.Error(err.Error())
-		state.Put("error", err.Error())
+		state.Put("error", err)
 		return multistep.ActionHalt
 	}
 
@@ -74,7 +74,6 @@ func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 		case <-time.After(config.BootCommand.VNCConfig.BootWait):
 			break
 		case <-ctx.Done():
-			log.Println("fucked")
 			return multistep.ActionHalt
 		}
 	}
@@ -83,14 +82,14 @@ func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 	if !ok {
 		err = fmt.Errorf("no VNC address provided by oVirt")
 		ui.Error(err.Error())
-		state.Put("error", err.Error())
+		state.Put("error", err)
 		return multistep.ActionHalt
 	}
 	vncPort, ok := display.Port()
 	if !ok {
 		err = fmt.Errorf("no VNC port provided by oVirt")
 		ui.Error(err.Error())
-		state.Put("error", err.Error())
+		state.Put("error", err)
 		return multistep.ActionHalt
 	}
 
@@ -102,7 +101,7 @@ func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 	if err != nil {
 		err = fmt.Errorf("could not connect to VNC host: %w", err)
 		ui.Error(err.Error())
-		state.Put("error", err.Error())
+		state.Put("error", err)
 		return multistep.ActionHalt
 	}
 	defer func() {
@@ -113,19 +112,19 @@ func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 	if err != nil {
 		err = fmt.Errorf("could not get VNC ticket: %w", err)
 		ui.Error(err.Error())
-		state.Put("error", err.Error())
+		state.Put("error", err)
 		return multistep.ActionHalt
 	}
 	ticket := ticketResp.MustTicket()
 
-	log.Printf("VNC ticket %s (%d)", ticket.MustValue(), ticket.MustExpiry())
+	log.Printf("Got a VNC ticket (valid for %d seconds)", ticket.MustExpiry())
 
 	vncConfig := vnc.NewClientConfig(ticket.MustValue())
 	vncClient, err := vnc.Connect(ctx, vncConn, vncConfig)
 	if err != nil {
 		err = fmt.Errorf("could not talk to VNC service: %w", err)
 		ui.Error(err.Error())
-		state.Put("error", err.Error())
+		state.Put("error", err)
 		return multistep.ActionHalt
 	}
 	defer func() {
@@ -144,14 +143,14 @@ func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 	if err != nil {
 		err = fmt.Errorf("could not generate expression sequence: %w", err)
 		ui.Error(err.Error())
-		state.Put("error", err.Error())
+		state.Put("error", err)
 		return multistep.ActionHalt
 	}
 
 	if err := seq.Do(ctx, driver); err != nil {
 		err = fmt.Errorf("could not execute boot command: %w", err)
 		ui.Error(err.Error())
-		state.Put("error", err.Error())
+		state.Put("error", err)
 		return multistep.ActionHalt
 	}
 

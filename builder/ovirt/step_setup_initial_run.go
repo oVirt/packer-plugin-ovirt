@@ -63,8 +63,6 @@ func (s *stepSetupInitialRun) Run(ctx context.Context, state multistep.StateBag)
 	vmBuilder := ovirtsdk4.NewVmBuilder()
 	initBuilder := ovirtsdk4.NewInitializationBuilder()
 
-	log.Println(config.SourceType)
-
 	if s.Comm.SSHUsername != "" {
 		log.Printf("Set SSH user name: %s", s.Comm.SSHUsername)
 		initBuilder.UserName(s.Comm.SSHUsername)
@@ -258,6 +256,7 @@ func (s *stepSetupInitialRun) Cleanup(state multistep.StateBag) {
 	conn, err := ovirtConnect(config, state)
 	if err != nil {
 		ui.Error(err.Error())
+		return
 	}
 
 	vmService := conn.SystemService().VmsService().VmService(vmID)

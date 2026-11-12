@@ -38,7 +38,7 @@ type Config struct {
 	Sockets         uint64 `mapstructure:"cpu_sockets"`
 	Memory          uint64 `mapstructure:"memory"` // In MB, same as vSphere plugin.
 	OperatingSystem string `mapstructure:"operating_system"`
-	Tpm             bool   `mapstructure:"tpm"`
+	Tpm             *bool  `mapstructure:"tpm"`
 
 	TemplateName        string `mapstructure:"template_name"`
 	TemplateDescription string `mapstructure:"template_description"`
@@ -86,7 +86,11 @@ func NewConfig(raws ...any) (*Config, []string, error) {
 		c.VMName = fmt.Sprintf("packer-%s", uuid.TimeOrderedUUID())
 	}
 	if c.DiskName == "" {
+		// Name the disk after the template it ends up in, if there is one.
 		c.DiskName = c.VMName
+		if c.TemplateName != "" {
+			c.DiskName = c.TemplateName
+		}
 	}
 	if c.Netmask == "" {
 		c.Netmask = "255.255.255.0"
@@ -97,17 +101,22 @@ func NewConfig(raws ...any) (*Config, []string, error) {
 		log.Printf("Set default nic name to %s", c.NicName)
 	}
 
-	if c.Cores == 0 {
-		c.Cores = 1
-		log.Printf("Set default cpu cores to %d", c.Cores)
-	}
-	if c.Sockets == 0 {
-		c.Sockets = 1
-		log.Printf("Set default cpu sockets to %d", c.Sockets)
-	}
-	if c.Memory == 0 {
-		c.Memory = 2048
-		log.Printf("Set default memory to %d MB", c.Memory)
+	// An ISO build starts from the Blank template and needs sizing. A
+	// template build keeps the source template's CPU, memory and TPM unless
+	// they are set explicitly.
+	if c.SourceType == ISOSource {
+		if c.Cores == 0 {
+			c.Cores = 1
+			log.Printf("Set default cpu cores to %d", c.Cores)
+		}
+		if c.Sockets == 0 {
+			c.Sockets = 1
+			log.Printf("Set default cpu sockets to %d", c.Sockets)
+		}
+		if c.Memory == 0 {
+			c.Memory = 2048
+			log.Printf("Set default memory to %d MB", c.Memory)
+		}
 	}
 
 	if len(c.BiosType) > 0 {
