@@ -11,8 +11,8 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/bootcommand"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
-	"github.com/kward/go-vnc"
-	"github.com/kward/go-vnc/keys"
+	"github.com/alexsnet/go-vnc"
+	"github.com/alexsnet/go-vnc/keys"
 )
 
 type adaptor struct {
@@ -91,6 +91,13 @@ func (s *stepBootCommand) Run(ctx context.Context, state multistep.StateBag) mul
 		ui.Error(err.Error())
 		state.Put("error", err)
 		return multistep.ActionHalt
+	}
+
+	// When VNC encryption is enabled, the encrypted VNC server listens on a
+	// separate secure port; prefer it so VeNCrypt is actually used.
+	if securePort, ok := display.SecurePort(); ok && securePort > 0 {
+		ui.Sayf("VNC encryption is enabled, using secure port %d", securePort)
+		vncPort = securePort
 	}
 
 	hostPort := net.JoinHostPort(vncIP, strconv.FormatInt(vncPort, 10))
