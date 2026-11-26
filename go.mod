@@ -3,10 +3,10 @@ module github.com/oVirt/packer-plugin-ovirt
 go 1.26.0
 
 require (
+	github.com/alexsnet/go-vnc v0.1.1-0.20260818083258-ebe16086bdc0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/hcl/v2 v2.24.0
 	github.com/hashicorp/packer-plugin-sdk v0.6.7
-	github.com/kward/go-vnc v0.0.0-20251026235910-a389e865f061
 	github.com/ovirt/go-ovirt/v4 v4.5.0
 	github.com/zclconf/go-cty v1.18.0
 	golang.org/x/crypto v0.57.0

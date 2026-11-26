@@ -53,6 +53,8 @@ github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuy
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/alecthomas/units v0.0.0-20190717042225-c3de453c63f4/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d/go.mod h1:rBZYJk541a8SKzHPHnH3zbiI+7dagKZ0cgpgrD7Fyho=
+github.com/alexsnet/go-vnc v0.1.1-0.20260818083258-ebe16086bdc0 h1:CiWpznIcFdvOv+B00QXFqk7xT2qK8PJFecfJEEEQSPY=
+github.com/alexsnet/go-vnc v0.1.1-0.20260818083258-ebe16086bdc0/go.mod h1:bbRsg41Sh3zvrnWsw+REKJVGZd8Of2+S0V1G0ZaBhlU=
 github.com/antchfx/xmlquery v1.3.5 h1:I7TuBRqsnfFuL11ruavGm911Awx9IqSdiU6W/ztSmVw=
 github.com/antchfx/xmlquery v1.3.5/go.mod h1:64w0Xesg2sTaawIdNqMB+7qaW/bSqkQm+ssPaCMWNnc=
 github.com/antchfx/xpath v1.1.11 h1:WOFtK8TVAjLm3lbgqeP0arlHpvCEeTANeWZ/csPpJkQ=
@@ -321,8 +323,6 @@ github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
 github.com/kr/text v0.2.0/go.mod h1:eLer722TekiGuMkidMxC/pM04lWEeraHUUmBw8l2grE=
-github.com/kward/go-vnc v0.0.0-20251026235910-a389e865f061 h1:Lw/8Da83xt1QS3V6Fk5NufyevGPlwPH1fXf97ZYk7kc=
-github.com/kward/go-vnc v0.0.0-20251026235910-a389e865f061/go.mod h1:Ei1ybRjEbSbBKK/LVTkIJgCQ8knEG/BHBJCV0PVv0VA=
 github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786 h1:2ZKn+w/BJeL43sCxI2jhPLRv73oVVOjEKZjKkflyqxg=
 github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786/go.mod h1:kCEbxUJlNDEBNbdQMkPSp6yaKcRXVI6f4ddk8Riv4bc=
 github.com/masterzen/winrm v0.0.0-20250927112105-5f8e6c707321 h1:AKIJL2PfBX2uie0Mn5pxtG1+zut3hAVMZbRfoXecFzI=
