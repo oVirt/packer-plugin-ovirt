@@ -61,6 +61,7 @@ func (s *stepStopVM) Run(ctx context.Context, state multistep.StateBag) multiste
 		Target:    []string{string(ovirtsdk4.VMSTATUS_DOWN)},
 		Refresh:   VMStateRefreshFunc(conn, vmID),
 		StepState: state,
+		Timeout:   config.ShutdownTimeout,
 	}
 	if _, err := WaitForState(&stateChange); err != nil {
 		err := fmt.Errorf("error waiting for VM (%s) to stop: %s", vmID, err)

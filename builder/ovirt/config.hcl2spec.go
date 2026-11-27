@@ -110,6 +110,7 @@ type FlatConfig struct {
 	CloudInit                 *bool             `mapstructure:"cloud_init" cty:"cloud_init" hcl:"cloud_init"`
 	SysPrep                   *bool             `mapstructure:"sysprep" cty:"sysprep" hcl:"sysprep"`
 	ShutdownCommand           *string           `mapstructure:"shutdown_command" cty:"shutdown_command" hcl:"shutdown_command"`
+	ShutdownTimeout           *string           `mapstructure:"shutdown_timeout" cty:"shutdown_timeout" hcl:"shutdown_timeout"`
 	RemoveCDrom               *bool             `mapstructure:"remove_cdrom" cty:"remove_cdrom" hcl:"remove_cdrom"`
 }
 
@@ -225,6 +226,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"cloud_init":                   &hcldec.AttrSpec{Name: "cloud_init", Type: cty.Bool, Required: false},
 		"sysprep":                      &hcldec.AttrSpec{Name: "sysprep", Type: cty.Bool, Required: false},
 		"shutdown_command":             &hcldec.AttrSpec{Name: "shutdown_command", Type: cty.String, Required: false},
+		"shutdown_timeout":             &hcldec.AttrSpec{Name: "shutdown_timeout", Type: cty.String, Required: false},
 		"remove_cdrom":                 &hcldec.AttrSpec{Name: "remove_cdrom", Type: cty.Bool, Required: false},
 	}
 	return s

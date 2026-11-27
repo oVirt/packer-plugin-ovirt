@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"slices"
+	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/common"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
@@ -51,8 +52,9 @@ type Config struct {
 	CloudInit bool `mapstructure:"cloud_init"`
 	SysPrep   bool `mapstructure:"sysprep"`
 
-	ShutdownCommand string `mapstructure:"shutdown_command"`
-	RemoveCDrom     bool   `mapstructure:"remove_cdrom"`
+	ShutdownCommand string        `mapstructure:"shutdown_command"`
+	ShutdownTimeout time.Duration `mapstructure:"shutdown_timeout"`
+	RemoveCDrom     bool          `mapstructure:"remove_cdrom"`
 
 	ctx interpolate.Context
 }
@@ -129,6 +131,11 @@ func NewConfig(raws ...any) (*Config, []string, error) {
 		if !slices.Contains(options, ovirtsdk4.BiosType(c.BiosType)) {
 			errs = packer.MultiErrorAppend(errs, fmt.Errorf("invalid bios_type: %s", c.BiosType))
 		}
+	}
+
+	if c.ShutdownTimeout == 0 {
+		c.ShutdownTimeout = 5 * time.Minute
+		log.Printf("Set default shutdown timeout to %s", c.ShutdownTimeout)
 	}
 
 	if c.CloudInit && c.SysPrep {

@@ -28,7 +28,16 @@ type StateChangeConf struct {
 	Refresh   StateRefreshFunc
 	StepState multistep.StateBag
 	Target    []string
+	// Timeout is how long to wait for a target state. Zero means no limit.
+	Timeout time.Duration
 }
+
+// pollInterval is how often WaitForState refreshes the watched object.
+var pollInterval = 2 * time.Second
+
+// notFoundRetries is how many refreshes in a row may report the object as
+// not found (an empty state) before WaitForState gives up.
+const notFoundRetries = 10
 
 // VMStateRefreshFunc returns a StateRefreshFunc that is used to watch
 // a oVirt virtual machine.
@@ -114,6 +123,12 @@ func DiskAttachmentStateRefreshFunc(
 func WaitForState(conf *StateChangeConf) (i any, err error) {
 	log.Printf("Waiting for state to become: %s", conf.Target)
 
+	var deadline time.Time
+	if conf.Timeout > 0 {
+		deadline = time.Now().Add(conf.Timeout)
+	}
+	notFound := 0
+
 	for {
 		var currentState string
 		i, currentState, err := conf.Refresh()
@@ -131,12 +146,25 @@ func WaitForState(conf *StateChangeConf) (i any, err error) {
 			}
 		}
 
-		found := slices.Contains(conf.Pending, currentState)
-		if !found {
-			return nil, fmt.Errorf("unexpected state '%s', wanted target '%s'", currentState, conf.Target)
+		if currentState == "" {
+			// The refresh functions report a NotFoundError as an empty
+			// state; oVirt can briefly not see a newly created object.
+			notFound++
+			if notFound > notFoundRetries {
+				return nil, fmt.Errorf("object not found after %d attempts, wanted target '%s'", notFound, conf.Target)
+			}
+		} else {
+			notFound = 0
+			if !slices.Contains(conf.Pending, currentState) {
+				return nil, fmt.Errorf("unexpected state '%s', wanted target '%s'", currentState, conf.Target)
+			}
+		}
+
+		if !deadline.IsZero() && time.Now().After(deadline) {
+			return nil, fmt.Errorf("timeout after %s, wanted target '%s', currently '%s'", conf.Timeout, conf.Target, currentState)
 		}
 
 		log.Printf("Waiting for state to become %s, currently %s", conf.Target, currentState)
-		time.Sleep(2 * time.Second)
+		time.Sleep(pollInterval)
 	}
 }
